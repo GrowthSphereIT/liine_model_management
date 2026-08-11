@@ -1,0 +1,83 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import AdminShell from "@/components/admin/AdminShell";
+import { isAuthenticated } from "@/lib/auth";
+import { listModels, listWorks } from "@/lib/admin-data";
+
+export const dynamic = "force-dynamic";
+
+async function counts() {
+  try {
+    const [models, works] = await Promise.all([listModels(), listWorks()]);
+    return { models: models.length, works: works.length, online: true };
+  } catch {
+    return { models: 0, works: 0, online: false };
+  }
+}
+
+export default async function DashboardPage() {
+  if (!(await isAuthenticated())) redirect("/riservato/login");
+
+  const { models, works, online } = await counts();
+
+  const cards = [
+    {
+      href: "/riservato/modelli",
+      label: "Modelli",
+      count: models,
+      note: "Board · Lei, Lui, Kids",
+    },
+    {
+      href: "/riservato/lavori",
+      label: "Lavori",
+      count: works,
+      note: "Indice lavori selezionati",
+    },
+  ];
+
+  return (
+    <AdminShell active="dashboard">
+      <div className="mb-12">
+        <h1 className="u-display text-[clamp(2.2rem,6vw,4rem)] leading-[0.92]">
+          Panoramica
+        </h1>
+        <p className="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-ink-soft">
+          Da qui carichi e gestisci i contenuti che compaiono sul sito: i volti
+          del board e i lavori dell&apos;indice. Le modifiche sono pubblicate
+          immediatamente.
+        </p>
+        {!online && (
+          <p className="mt-5 inline-block border border-accent/40 px-3 py-2 text-[0.75rem] text-accent">
+            Database non raggiungibile: avvia il container Mongo
+            (<span className="font-mono">docker compose up mongo</span>).
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+        {cards.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="group flex flex-col justify-between gap-10 bg-paper p-8 transition-colors duration-300 hover:bg-paper-2 sm:p-10"
+          >
+            <div className="flex items-baseline justify-between">
+              <span className="u-eyebrow">{card.label}</span>
+              <span className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-transform duration-500 group-hover:translate-x-1">
+                Gestisci →
+              </span>
+            </div>
+            <div className="flex items-end justify-between">
+              <span className="u-display text-[clamp(3rem,10vw,6rem)] leading-[0.8] tabular-nums">
+                {String(card.count).padStart(2, "0")}
+              </span>
+              <span className="pb-2 text-[0.75rem] text-ink-soft">
+                {card.note}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </AdminShell>
+  );
+}

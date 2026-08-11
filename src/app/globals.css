@@ -37,7 +37,8 @@
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bodoni), "Times New Roman", serif;
 }
 
 * {
@@ -53,13 +54,10 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
+  font-weight: 300;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  /* Faint warm paper grain */
-  background-image:
-    radial-gradient(circle at 15% 12%, rgba(165, 71, 31, 0.03), transparent 40%),
-    radial-gradient(circle at 85% 88%, rgba(27, 22, 18, 0.03), transparent 45%);
 }
 
 ::selection {
@@ -78,10 +76,12 @@ body {
 }
 
 .u-display {
-  font-weight: 800;
-  line-height: 0.86;
-  letter-spacing: -0.045em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
+  font-feature-settings: "liga" 1, "dlig" 1;
 }
 
 .u-rule {
@@ -198,6 +198,310 @@ body {
   border-color: rgba(244, 238, 228, 0.22);
 }
 
+/* ---- Signature motion: masked line-rise ----------------------- */
+/* Type slides up from behind a hairline edge. The one coherent reveal
+   language of the site — replaces scattered blur-fades. */
+.lines .ln {
+  display: block;
+  overflow: hidden;
+}
+.lines .ln > span {
+  display: block;
+  transform: translateY(115%);
+  transition: transform 0.95s var(--ease-out-quint);
+  transition-delay: calc(var(--i, 0) * 90ms);
+  will-change: transform;
+}
+.lines.is-in .ln > span {
+  transform: translateY(0);
+}
+
+/* Hairline that draws itself in from the left. */
+.rule-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.1s var(--ease-out-quint);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.rule-draw.is-in {
+  transform: scaleX(1);
+}
+
+/* ---- Method index (replaces the card grid) -------------------- */
+.method-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .method-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3rem;
+    align-items: baseline;
+    padding: 2.4rem 0;
+  }
+  /* description anchored to the right end of the row */
+  .method-desc {
+    justify-self: end;
+    text-align: right;
+  }
+}
+.method-row:last-child {
+  border-bottom: 1px solid var(--line);
+}
+/* accent wash that wipes in on hover */
+.method-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--paper-2);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.5s var(--ease-out-quint);
+  z-index: 0;
+}
+.method-row:hover::before {
+  transform: scaleY(1);
+}
+.method-row > * {
+  position: relative;
+  z-index: 1;
+}
+.method-term {
+  /* permanent inward offset (previously the hover-only shift) */
+  padding-left: 0.85rem;
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  transition: color 0.4s var(--ease-out-quint);
+}
+.method-row:hover .method-term {
+  color: var(--accent);
+}
+.method-desc {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+/* staggered mask-rise on scroll-in */
+.method.is-in .method-term,
+.method.is-in .method-desc {
+  animation: liine-rise 0.85s var(--ease-out-quint) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes liine-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.4rem);
+  }
+}
+
+/* ---- Cursor image-trail (method index) ------------------------ */
+.trail-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4;
+}
+.trail-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(84px, 8.5vw, 122px);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0;
+  transform: translate3d(
+      calc(var(--x, 0) - 50%),
+      calc(var(--y, 0) - 50%),
+      0
+    )
+    scale(0.6) rotate(var(--r, 0deg));
+  transition:
+    opacity 0.32s var(--ease-out-quint),
+    transform 0.32s var(--ease-out-quint);
+  will-change: transform, opacity;
+  box-shadow: 0 18px 44px -22px rgba(27, 22, 18, 0.55);
+}
+.trail-item.is-on {
+  opacity: 1;
+  transform: translate3d(
+      calc(var(--x, 0) - 50%),
+      calc(var(--y, 0) - 50%),
+      0
+    )
+    scale(1) rotate(var(--r, 0deg));
+  transition:
+    opacity 0.13s ease-out,
+    transform 0.4s var(--ease-out-quint);
+}
+
+/* ---- Curtain image-reveal (detail pages) ---------------------- */
+/* A still is uncovered top-to-bottom while the image itself settles from a
+   slight over-scale — the gallery dialect of the site's mask-rise. */
+.img-reveal {
+  position: relative;
+  overflow: hidden;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.15s var(--ease-out-quint);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.img-reveal.is-in {
+  clip-path: inset(0 0 0 0);
+}
+.img-reveal img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.09);
+  transition: transform 1.5s var(--ease-out-quint);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: transform;
+}
+.img-reveal.is-in img {
+  transform: scale(1);
+}
+
+/* ---- Forms ---------------------------------------------------- */
+/* Fields inherit their ground via currentColor, so the same markup reads on
+   paper (ink type) and on the dark ink sections (paper type). Underline
+   inputs; an accent hairline draws in beneath on focus — the form dialect of
+   the site's .u-link / .rule-draw. */
+.field {
+  position: relative;
+  display: block;
+}
+.field-label {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, currentColor 62%, transparent);
+}
+.field-input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+  border-radius: 0;
+  padding: 0.6rem 0 0.62rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 300;
+  color: inherit;
+  transition: border-color 0.4s var(--ease-out-quint);
+}
+.field-input::placeholder {
+  color: color-mix(in srgb, currentColor 42%, transparent);
+}
+.field-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+}
+/* accent underline that draws in under the hairline on focus */
+.field::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--accent-soft);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-out-quint);
+  pointer-events: none;
+}
+.field:focus-within::after {
+  transform: scaleX(1);
+}
+/* native select: strip chrome, draw our own chevron via the wrapper */
+select.field-input {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+.field-select {
+  position: relative;
+}
+.field-select::before {
+  content: "";
+  position: absolute;
+  right: 2px;
+  bottom: 1rem;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid color-mix(in srgb, currentColor 55%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, currentColor 55%, transparent);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+select.field-input option {
+  color: var(--ink);
+  background: var(--paper);
+}
+textarea.field-input {
+  resize: vertical;
+  min-height: 3.5rem;
+}
+/* segmented radio group (e.g. Genere) */
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.seg-opt {
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+  padding: 0.55rem 1rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, currentColor 70%, transparent);
+  transition:
+    color 0.35s var(--ease-out-quint),
+    border-color 0.35s var(--ease-out-quint),
+    background-color 0.35s var(--ease-out-quint);
+}
+.seg-opt:hover {
+  border-color: color-mix(in srgb, currentColor 50%, transparent);
+  color: inherit;
+}
+.seg input:checked + .seg-opt {
+  color: var(--paper);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+/* file dropzone */
+.dropzone {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px dashed color-mix(in srgb, currentColor 30%, transparent);
+  padding: 1.1rem 1.2rem;
+  transition:
+    border-color 0.35s var(--ease-out-quint),
+    background-color 0.35s var(--ease-out-quint);
+}
+.dropzone:hover {
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
 /* ---- Motion --------------------------------------------------- */
 
 @keyframes liine-reveal {
@@ -255,8 +559,21 @@ body {
     filter: none;
     transform: none;
   }
+  .lines .ln > span,
+  .rule-draw {
+    transform: none !important;
+  }
   .marquee-track {
     animation: none;
+  }
+  .trail-layer {
+    display: none;
+  }
+  .img-reveal {
+    clip-path: none !important;
+  }
+  .img-reveal img {
+    transform: none !important;
   }
   *,
   *::before,

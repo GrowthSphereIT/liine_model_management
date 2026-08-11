@@ -1,21 +1,45 @@
 "use client";
 
-import { useState } from "react";
-import { BOARD, type Division } from "@/lib/site-data";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { type ModelCard } from "@/lib/site-data";
 
-const TABS: { id: Division; label: string; note: string }[] = [
+type TabId = "lei" | "lui" | "kids";
+type BoardData = Record<TabId, ModelCard[]>;
+
+const isTab = (v: string | null): v is TabId =>
+  v === "lei" || v === "lui" || v === "kids";
+
+const TABS: { id: TabId; label: string; note: string }[] = [
   { id: "lei", label: "Lei", note: "Donne" },
   { id: "lui", label: "Lui", note: "Uomini" },
+  { id: "kids", label: "Kids", note: "In arrivo" },
 ];
 
-export default function Board() {
-  const [active, setActive] = useState<Division>("lei");
-  const models = BOARD[active];
+const LABELS: Record<TabId, string> = { lei: "Lei", lui: "Lui", kids: "Kids" };
+
+// Empty fallback for isolated usage — the real board is passed by the server.
+const DEFAULT_BOARD: BoardData = { lei: [], lui: [], kids: [] };
+
+export default function Board({ board = DEFAULT_BOARD }: { board?: BoardData }) {
+  const divParam = useSearchParams().get("div");
+  const [active, setActive] = useState<TabId>(() =>
+    isTab(divParam) ? divParam : "lei",
+  );
+
+  // Keep the board in sync when the division changes via the navbar mega menu
+  // (soft navigation updates the query without remounting this component).
+  useEffect(() => {
+    if (isTab(divParam)) setActive(divParam);
+  }, [divParam]);
+
+  const models = board[active] ?? [];
 
   return (
     <div>
       {/* Tabs with sliding indicator */}
-      <div className="mb-10 flex items-end justify-between gap-6 border-b border-line-strong">
+      <div className="mb-10 flex items-end justify-start gap-6 border-b border-line-strong">
         <div className="relative flex gap-8">
           {TABS.map((tab) => {
             const on = tab.id === active;
@@ -52,55 +76,77 @@ export default function Board() {
             );
           })}
         </div>
-        <span className="hidden pb-4 text-[0.625rem] uppercase tracking-[0.22em] text-ink-soft sm:inline">
-          {String(models.length).padStart(2, "0")} volti
-        </span>
       </div>
 
-      {/* Grid */}
-      <ul
-        key={active}
-        className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4"
-      >
+      {/* Empty division — Kids gets bespoke copy, others a neutral note */}
+      {models.length === 0 ? (
+        <div
+          key={`empty-${active}`}
+          className="flex min-h-[38vh] flex-col items-center justify-center gap-5 border border-line px-6 py-20 text-center"
+          style={{ animation: "liine-reveal .7s var(--ease-out-quint) both" }}
+        >
+          <span className="u-display text-[clamp(2rem,7vw,4.2rem)] leading-none text-ink-faint">
+            Prossimamente
+          </span>
+          <p className="max-w-sm text-[0.95rem] leading-relaxed text-ink-soft">
+            {active === "kids"
+              ? "La divisione Kids di LIINE è in preparazione. Presto, qui, il board dedicato, con la stessa cura di casting di Lei e Lui."
+              : `La divisione ${LABELS[active]} è in aggiornamento. Il board dedicato tornerà a breve.`}
+          </p>
+        </div>
+      ) : (
+        /* Grid */
+        <ul
+          key={active}
+          className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4"
+        >
         {models.map((m, i) => (
           <li
             key={`${active}-${i}`}
-            className="group"
             style={{
               animation: `liine-reveal .7s var(--ease-out-quint) both`,
-              animationDelay: `${i * 45}ms`,
+              animationDelay: `${i * 60}ms`,
             }}
           >
-            <div className="ph relative aspect-[3/4] w-full">
-              <span className="ph-tag">Foto · {active === "lei" ? "Lei" : "Lui"}</span>
-              {/* big faint index sits behind */}
-              <span
-                aria-hidden
-                className="u-display absolute bottom-2 right-3 z-[2] text-[3rem] leading-none text-paper/25"
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              {/* hover slide-up meta */}
-              <div
-                className="absolute inset-x-0 bottom-0 z-[3] translate-y-full bg-ink/85 px-3 py-3 text-paper backdrop-blur-sm transition-transform duration-400 group-hover:translate-y-0"
-                style={{ transitionTimingFunction: "var(--ease-out-quint)" }}
-              >
-                <p className="text-[0.6875rem] uppercase tracking-[0.14em]">
-                  Altezza {m.height} · {m.origin}
-                </p>
+            <Link href={`/modelli/${m.slug}`} className="group block">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-paper-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={m.img}
+                  alt={m.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.045]"
+                  style={{ transitionTimingFunction: "var(--ease-out-quint)" }}
+                  draggable={false}
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/45 via-ink/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+                {/* hover cue */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-3 left-3 z-[2] inline-flex translate-y-2 items-center gap-2 text-[0.5625rem] uppercase tracking-[0.24em] text-paper opacity-0 transition-[transform,opacity] duration-500 group-hover:translate-y-0 group-hover:opacity-100"
+                >
+                  Scheda
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </span>
               </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between border-t border-line pt-2">
-              <span className="text-[0.8125rem] font-medium tracking-tight">
-                {m.name}
-              </span>
-              <span className="text-[0.625rem] uppercase tracking-[0.18em] text-ink-soft">
-                {m.height}
-              </span>
-            </div>
+              <div className="mt-3 flex items-baseline justify-between border-t border-line pt-2 transition-colors duration-300 group-hover:border-line-strong">
+                <span className="text-[0.9rem] font-medium tracking-tight transition-colors duration-300 group-hover:text-accent">
+                  {m.name}
+                </span>
+                <span className="text-[0.625rem] uppercase tracking-[0.18em] text-ink-soft">
+                  {LABELS[active]}
+                </span>
+              </div>
+            </Link>
           </li>
-        ))}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

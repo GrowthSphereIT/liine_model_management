@@ -1,0 +1,14 @@
+# Non-secret runtime config for liine.
+# Secrets (MONGODB_URI, ADMIN_PASSWORD, SESSION_SECRET) live in the `liine-app`
+# Secret, created by deploy/scripts/apply-secrets.sh.
+# NEXT_PUBLIC_* vars are baked into the image at build time.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: liine-config
+  namespace: liine
+data:
+  NODE_ENV: "production"
+  APP_URL: "https://liine.growthsphere.it"
+  NEXT_PUBLIC_APP_URL: "https://liine.growthsphere.it"
+  MONGODB_DB: "liine"

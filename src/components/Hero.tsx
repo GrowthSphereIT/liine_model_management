@@ -39,7 +39,17 @@ export default function Hero() {
               filter: `hue-rotate(${i * 4}deg) saturate(${1 + i * 0.04})`,
             }}
           >
-            <span className="ph-tag">Cover {c} · Foto segnaposto</span>
+            <span
+              className="ph-tag"
+              style={{
+                top: "auto",
+                left: "auto",
+                bottom: "1.25rem",
+                right: "1.25rem",
+              }}
+            >
+              Cover {c} · Foto segnaposto
+            </span>
           </div>
         ))}
         {/* legibility scrim toward the base */}
@@ -48,42 +58,35 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto w-full max-w-[1600px] px-5 pb-10 sm:px-8 sm:pb-16">
-        <div
-          className="mb-6 flex items-center gap-3 text-[0.625rem] uppercase tracking-[0.28em] text-paper/85"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "translateY(0)" : "translateY(14px)",
-            transition: "all .8s var(--ease-out-quint) .1s",
-          }}
-        >
-          <span className="h-px w-8 bg-paper/60" />
-          Model Management · Londra
+        <div className="overflow-hidden">
+          <h1
+            className="u-display text-paper"
+            style={{
+              fontSize: "clamp(3.6rem, 17vw, 15rem)",
+              transform: mounted ? "translateY(0)" : "translateY(110%)",
+              transition: "transform 1.1s var(--ease-out-quint) .12s",
+            }}
+          >
+            LIINE
+          </h1>
         </div>
 
-        <h1
-          className="u-display text-paper"
-          style={{
-            fontSize: "clamp(3.6rem, 17vw, 15rem)",
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "translateY(0)" : "translateY(4%)",
-            transition: "all 1s var(--ease-out-quint) .18s",
-          }}
-        >
-          LIINE
-        </h1>
-
         <div className="mt-6 flex flex-col gap-8 border-t border-paper/25 pt-6 md:flex-row md:items-end md:justify-between">
-          <p
-            className="max-w-md text-balance text-[1.05rem] leading-snug text-paper/90"
+          <div
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(14px)",
-              transition: "all .9s var(--ease-out-quint) .34s",
+              transition: "all .9s var(--ease-out-quint) .5s",
             }}
           >
-            Cambiamo il modo in cui la moda seleziona i modelli — per vestibilità
-            reale, non per misure.
-          </p>
+            <p className="mb-3 text-[0.625rem] uppercase tracking-[0.28em] text-paper/70">
+              Model management · Londra
+            </p>
+            <p className="max-w-md text-balance text-[1.05rem] leading-snug text-paper/90">
+              Cambiamo il modo in cui la moda seleziona i modelli: per
+              vestibilità reale, non per misure.
+            </p>
+          </div>
 
           <div
             className="flex items-center gap-5"

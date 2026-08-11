@@ -1,4 +1,24 @@
 services:
+  mongo:
+    image: mongo:7
+    container_name: liine-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-liine}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-liine_dev_password}
+      - MONGO_INITDB_DATABASE=${MONGO_DB:-liine}
+    ports:
+      # Exposed on the host so `npm run dev` (outside Docker) can reach the DB.
+      - "27017:27017"
+    volumes:
+      - liine-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   web:
     build:
       context: .
@@ -9,4 +29,15 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      # Inside the compose network the DB host is the service name `mongo`.
+      - MONGODB_URI=mongodb://${MONGO_USER:-liine}:${MONGO_PASSWORD:-liine_dev_password}@mongo:27017/${MONGO_DB:-liine}?authSource=admin
+      - MONGODB_DB=${MONGO_DB:-liine}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-liine}
+      - SESSION_SECRET=${SESSION_SECRET:-change-me-to-a-long-random-string-in-production}
+    depends_on:
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  liine-mongo-data:

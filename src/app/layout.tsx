@@ -22,17 +22,31 @@
   FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 */
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import { Space_Grotesk, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+// Body / UI grotesque — neo-grotesque with a monospaced sibling, the closest
+// freely-hostable cousin of ABC Monument Grotesk. Quiet, neutral, wide-tracked
+// at small sizes; light weight for editorial body copy.
+const grotesk = Space_Grotesk({
+  variable: "--font-grotesk",
   subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  display: "swap",
+});
+
+// Display face — high-contrast Didone, the couture/editorial register
+// (Vogue, Bottega). Carries the wordmark and the big statements.
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "LIINE — Model Management",
+  title: "LIINE · Model Management",
   description:
     "LIINE nasce per cambiare il modo in cui la moda seleziona i modelli: selezione per vestibilità reale, non per misure. Divisioni Lei e Lui, casting aperto e richieste clienti.",
 };
@@ -41,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="it"
-      className={`${archivo.variable} h-full antialiased`}
+      className={`${grotesk.variable} ${bodoni.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         {children}

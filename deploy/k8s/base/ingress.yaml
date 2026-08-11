@@ -1,0 +1,27 @@
+# Ingress for liine.growthsphere.it — TLS terminated by cert-manager (Let's Encrypt).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: liine
+  namespace: liine
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - liine.growthsphere.it
+      secretName: liine-tls
+  rules:
+    - host: liine.growthsphere.it
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: liine
+                port:
+                  number: 80
