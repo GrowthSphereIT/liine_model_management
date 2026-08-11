@@ -1,59 +1,48 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { COVERS } from "@/lib/site-data";
+import Image from "next/image";
 
 export default function Hero() {
-  const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [motion, setMotion] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const id = setInterval(
-      () => setActive((i) => (i + 1) % COVERS.length),
-      5200,
-    );
-    return () => clearInterval(id);
+    setMotion(!reduce);
   }, []);
 
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
+      className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink"
     >
-      {/* Rotating cover placeholders */}
+      {/* Background cover — B/W editorial still, subject anchored right */}
       <div className="absolute inset-0">
-        {COVERS.map((c, i) => (
-          <div
-            key={c}
-            aria-hidden={i !== active}
-            className="ph ph-cover absolute inset-0 transition-opacity duration-[1400ms]"
-            style={{
-              opacity: i === active ? 1 : 0,
-              transitionTimingFunction: "var(--ease-in-out-cubic)",
-              animation:
-                i === active ? "liine-kenburns 6s ease-out forwards" : "none",
-              // subtly vary the warm tone per cover
-              filter: `hue-rotate(${i * 4}deg) saturate(${1 + i * 0.04})`,
-            }}
-          >
-            <span
-              className="ph-tag"
-              style={{
-                top: "auto",
-                left: "auto",
-                bottom: "1.25rem",
-                right: "1.25rem",
-              }}
-            >
-              Cover {c} · Foto segnaposto
-            </span>
-          </div>
-        ))}
-        {/* legibility scrim toward the base */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1b1612]/55 via-transparent to-[#1b1612]/10" />
+        <div
+          className="absolute inset-0"
+          style={{
+            animation: motion
+              ? "liine-kenburns 14s var(--ease-out-quint) forwards"
+              : "none",
+          }}
+        >
+          <Image
+            src="/covers/hero-lei.webp"
+            alt=""
+            aria-hidden
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-right"
+          />
+        </div>
+
+        {/* Legibility scrims: strong toward the base for the wordmark + tagline,
+            a soft wash on the left where the copy sits. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-transparent to-transparent" />
       </div>
 
       {/* Content */}
@@ -96,29 +85,9 @@ export default function Hero() {
               transition: "all .9s var(--ease-out-quint) .46s",
             }}
           >
-            {/* index ticks */}
-            <div className="hidden items-center gap-2 sm:flex" aria-hidden>
-              {COVERS.map((c, i) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setActive(i)}
-                  aria-label={`Vai a cover ${c}`}
-                  className="h-[2px] w-8 overflow-hidden bg-paper/30"
-                >
-                  <span
-                    className="block h-full bg-paper transition-transform duration-500"
-                    style={{
-                      transform: i === active ? "scaleX(1)" : "scaleX(0)",
-                      transformOrigin: "left",
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
             <a
               href="#richiesta"
-              className="group inline-flex items-center gap-3 bg-paper px-6 py-3.5 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink transition-colors duration-300 hover:bg-accent hover:text-paper"
+              className="group inline-flex items-center gap-3 bg-paper px-6 py-3.5 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
             >
               Richiesta clienti
               <span className="transition-transform duration-300 group-hover:translate-x-1">

@@ -13,7 +13,7 @@ const SOCIAL_ICONS: Record<string, ComponentType<{ className?: string }>> = {
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-ink bg-paper px-5 pt-16 sm:px-8 sm:pt-20">
+    <footer className="border-t border-ink bg-white px-5 pt-16 sm:px-8 sm:pt-20">
       <div className="mx-auto max-w-[1600px]">
         {/* Top — brand column + link columns */}
         <div className="grid gap-12 border-b border-line pb-14 md:grid-cols-12">

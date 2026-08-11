@@ -216,6 +216,116 @@ body {
   transform: translateY(0);
 }
 
+/* Scroll-linked underline for a single word in a Lines heading. */
+@property --u {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+.ln-underword {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.08em;
+}
+.ln-underbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: max(4px, 0.08em);
+  background: var(--accent);
+  transform: scaleX(var(--u, 0));
+  transform-origin: left;
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* Trailing period tints to the underline colour as the bar completes. */
+.ln-dot {
+  color: color-mix(in srgb, var(--accent) calc(var(--u, 0) * 100%), currentColor);
+  transition: color 0.15s linear;
+}
+
+/* Light rays streaming from the top-right corner (decorative). */
+.light-rays {
+  position: absolute;
+  top: -12%;
+  left: -6%;
+  width: min(72vw, 860px);
+  height: min(82vh, 780px);
+  z-index: 0;
+  pointer-events: none;
+  transform-origin: 0% 0%;
+  background:
+    radial-gradient(
+      42% 42% at 0% 0%,
+      color-mix(in srgb, var(--accent) 16%, transparent) 0%,
+      transparent 66%
+    ),
+    repeating-conic-gradient(
+      from 88deg at 0% 0%,
+      transparent 0deg 1.6deg,
+      color-mix(in srgb, var(--accent) 13%, transparent) 1.6deg 3deg,
+      transparent 3deg 8deg
+    );
+  -webkit-mask-image: radial-gradient(
+    92% 92% at 0% 0%,
+    #000 0%,
+    rgba(0, 0, 0, 0.35) 46%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    92% 92% at 0% 0%,
+    #000 0%,
+    rgba(0, 0, 0, 0.35) 46%,
+    transparent 72%
+  );
+  animation: liine-rays 9s ease-in-out infinite alternate;
+}
+@keyframes liine-rays {
+  from {
+    opacity: 0.5;
+    transform: rotate(-1.6deg);
+  }
+  to {
+    opacity: 0.85;
+    transform: rotate(1.6deg);
+  }
+}
+/* Title lit from the corner light; the cast direction is scroll-driven
+   through --sx/--sy (set in Lines.tsx), so it swings as the section passes.
+   On entry the shadow fades in (--sh-a 0→1) and sharpens (--sh-blur 16→2px),
+   in step with the heading's mask-rise. */
+@property --sh-a {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@property --sh-blur {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 16;
+}
+.title-lit {
+  filter: drop-shadow(
+    calc(var(--sx, -8) * 1px) calc(var(--sy, 12) * 1px)
+      calc(var(--sh-blur) * 1px)
+      color-mix(in srgb, var(--ink) calc(var(--sh-a) * 34%), transparent)
+  );
+}
+.title-lit.is-in {
+  animation: liine-shadow-in 1.1s var(--ease-out-quint) 0.35s forwards;
+}
+@keyframes liine-shadow-in {
+  from {
+    --sh-a: 0;
+    --sh-blur: 16;
+  }
+  to {
+    --sh-a: 1;
+    --sh-blur: 2;
+  }
+}
+
 /* Hairline that draws itself in from the left. */
 .rule-draw {
   transform: scaleX(0);
@@ -231,27 +341,18 @@ body {
 .method-row {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  padding: 2rem 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.9rem 0;
   border-top: 1px solid var(--line);
   overflow: hidden;
 }
 @media (min-width: 768px) {
   .method-row {
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 3rem;
-    align-items: baseline;
-    padding: 2.4rem 0;
+    padding: 2.3rem 0;
   }
-  /* description anchored to the right end of the row */
-  .method-desc {
-    justify-self: end;
-    text-align: right;
-  }
-}
-.method-row:last-child {
-  border-bottom: 1px solid var(--line);
 }
 /* accent wash that wipes in on hover */
 .method-row::before {
@@ -271,9 +372,14 @@ body {
   position: relative;
   z-index: 1;
 }
-.method-term {
+.method-main {
   /* permanent inward offset (previously the hover-only shift) */
   padding-left: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.method-term {
   font-size: clamp(1.5rem, 3.4vw, 2.4rem);
   font-weight: 600;
   letter-spacing: -0.03em;
@@ -287,11 +393,48 @@ body {
   font-size: 0.98rem;
   line-height: 1.55;
   color: var(--ink-soft);
-  max-width: 46ch;
+  max-width: 52ch;
+}
+/* outline circle with an arrow that loops through on hover */
+.method-arrow {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-right: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  overflow: hidden;
+  transition:
+    background-color 0.45s var(--ease-out-quint),
+    border-color 0.45s var(--ease-out-quint),
+    color 0.45s var(--ease-out-quint);
+}
+@media (min-width: 768px) {
+  .method-arrow {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
+.method-arrow svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  transition: transform 0.45s var(--ease-out-quint);
+}
+.method-row:hover .method-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.method-row:hover .method-arrow svg {
+  transform: translateX(0.18rem);
 }
 /* staggered mask-rise on scroll-in */
-.method.is-in .method-term,
-.method.is-in .method-desc {
+.method.is-in .method-main,
+.method.is-in .method-arrow {
   animation: liine-rise 0.85s var(--ease-out-quint) both;
   animation-delay: calc(var(--i, 0) * 110ms);
 }

@@ -74,15 +74,15 @@ export default function SiteHeader() {
   // bar itself never goes dark.
   const barSkin =
     scrolled && !open
-      ? "border-line bg-paper/85 text-ink backdrop-blur-md"
-      : "border-transparent bg-transparent text-paper";
+      ? "border-b border-line bg-paper/85 text-ink backdrop-blur-md"
+      : "border-b-0 bg-transparent text-paper";
   // The bar only retracts when nothing is expanded over it.
   const retract = hidden && !mega && !open;
 
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b ${barSkin}`}
+        className={`fixed inset-x-0 top-0 z-50 ${barSkin}`}
         style={{
           height: "var(--header-h)",
           transform: retract ? "translateY(-100%)" : "translateY(0)",

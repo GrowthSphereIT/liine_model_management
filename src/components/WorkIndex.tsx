@@ -18,16 +18,37 @@ export default function WorkIndex({ works }: { works: WorkItem[] }) {
   const frame = useRef<number | null>(null);
   const point = useRef({ x: 0, y: 0 });
 
-  const onMove = useCallback((e: React.MouseEvent) => {
-    point.current = { x: e.clientX, y: e.clientY };
-    if (frame.current != null) return;
-    frame.current = requestAnimationFrame(() => {
-      frame.current = null;
-      const el = previewRef.current;
-      if (!el) return;
-      el.style.transform = `translate3d(calc(${point.current.x}px - 50%), calc(${point.current.y}px - 62%), 0)`;
-    });
+  // Position the floating preview at a point (synchronous, no transition).
+  const positionTo = useCallback((x: number, y: number) => {
+    const el = previewRef.current;
+    if (!el) return;
+    el.style.transform = `translate3d(calc(${x}px - 50%), calc(${y}px - 62%), 0)`;
   }, []);
+
+  const onMove = useCallback(
+    (e: React.MouseEvent) => {
+      point.current = { x: e.clientX, y: e.clientY };
+      if (frame.current != null) return;
+      frame.current = requestAnimationFrame(() => {
+        frame.current = null;
+        positionTo(point.current.x, point.current.y);
+      });
+    },
+    [positionTo],
+  );
+
+  // Snap the preview to the cursor the instant a row is hovered/focused, so it
+  // fades in on the pointer instead of flashing at the top-left corner.
+  const activate = useCallback(
+    (i: number, e: React.MouseEvent | React.FocusEvent) => {
+      if ("clientX" in e) {
+        point.current = { x: e.clientX, y: e.clientY };
+        positionTo(e.clientX, e.clientY);
+      }
+      setActive(i);
+    },
+    [positionTo],
+  );
 
   return (
     <div onMouseMove={onMove} className="relative">
@@ -85,8 +106,8 @@ export default function WorkIndex({ works }: { works: WorkItem[] }) {
             >
               <Link
                 href={`/lavori/${w.slug}`}
-                onMouseEnter={() => setActive(i)}
-                onFocus={() => setActive(i)}
+                onMouseEnter={(e) => activate(i, e)}
+                onFocus={(e) => activate(i, e)}
                 onBlur={() => setActive(null)}
                 className="group flex items-baseline justify-between gap-6 py-6 outline-none transition-opacity duration-500 sm:py-8"
                 style={{

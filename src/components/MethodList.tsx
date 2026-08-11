@@ -41,13 +41,27 @@ export default function MethodList() {
   return (
     <div ref={ref} className={`method mt-14 ${inView ? "is-in" : ""}`}>
       {METHOD.map((row, i) => (
-        <article key={row.term} className="method-row">
-          <h3 className="method-term" style={{ ["--i" as string]: i }}>
-            {row.term}
-          </h3>
-          <p className="method-desc" style={{ ["--i" as string]: i }}>
-            {row.desc}
-          </p>
+        <article
+          key={row.term}
+          className="method-row"
+          style={{ ["--i" as string]: i }}
+        >
+          <div className="method-main">
+            <h3 className="method-term">{row.term}</h3>
+            <p className="method-desc">{row.desc}</p>
+          </div>
+          <span className="method-arrow" aria-hidden>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </article>
       ))}
     </div>
