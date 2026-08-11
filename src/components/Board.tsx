@@ -14,7 +14,7 @@ const isTab = (v: string | null): v is TabId =>
 const TABS: { id: TabId; label: string; note: string }[] = [
   { id: "lei", label: "Lei", note: "Donne" },
   { id: "lui", label: "Lui", note: "Uomini" },
-  { id: "kids", label: "Kids", note: "In arrivo" },
+  { id: "kids", label: "Kids", note: "Bambini" },
 ];
 
 const LABELS: Record<TabId, string> = { lei: "Lei", lui: "Lui", kids: "Kids" };

@@ -12,6 +12,9 @@ import LogoMarquee from "@/components/LogoMarquee";
 import ImageTrail from "@/components/ImageTrail";
 import WorkIndex from "@/components/WorkIndex";
 import FooterReveal from "@/components/FooterReveal";
+import ScrollBlur from "@/components/ScrollBlur";
+import BackToTop from "@/components/BackToTop";
+import Preloader from "@/components/Preloader";
 import { MODELS } from "@/lib/site-data";
 import { getPublicBoard, getPublicWorks } from "@/lib/admin-data";
 
@@ -27,6 +30,9 @@ export default async function Home() {
 
   return (
     <>
+      {/* Initial load screen — lifts away once everything has loaded */}
+      <Preloader />
+
       {/* Content column — opaque and lifted above the footer so it slides over
           it while scrolling and only uncovers it at the very end (sheet reveal). */}
       <div
@@ -44,6 +50,7 @@ export default async function Home() {
         {/* Il metodo — editorial statement + method index (no cards) */}
         <section
           id="metodo"
+          className="overflow-x-clip"
           style={{
             background:
               "radial-gradient(34% 42% at 22% 10%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 70%)," +
@@ -54,7 +61,7 @@ export default async function Home() {
         >
           <ImageTrail
             images={MODELS}
-            className="mx-auto max-w-[1600px] px-5 pt-14 sm:px-8 sm:pt-20"
+            className="mx-auto max-w-[1600px] px-5 pt-14 pb-14 sm:px-8 sm:pt-20 sm:pb-20"
           >
             <Lines
               as="h2"
@@ -79,7 +86,6 @@ export default async function Home() {
               "var(--paper)",
           }}
         >
-          <div className="light-rays" aria-hidden />
           <div className="relative z-10 mx-auto max-w-[1600px]">
             <div className="mb-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <Lines
@@ -92,8 +98,8 @@ export default async function Home() {
                 delay={200}
                 className="max-w-xs text-[0.9rem] leading-relaxed text-ink-soft"
               >
-                Una selezione dal roster: le divisioni Lei e Lui, con Kids in
-                arrivo, aggiornate per campagne, sfilate e fitting.
+                Una selezione dal roster: le divisioni Lei, Lui e Kids,
+                aggiornate per campagne, sfilate e fitting.
               </Reveal>
             </div>
             <Suspense fallback={null}>
@@ -282,6 +288,12 @@ export default async function Home() {
       <FooterReveal>
         <SiteFooter />
       </FooterReveal>
+
+      {/* Progressive frosted fade pinned to the bottom of the viewport */}
+      <ScrollBlur />
+
+      {/* Back-to-top control, hidden over the hero */}
+      <BackToTop />
     </>
   );
 }

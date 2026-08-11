@@ -69,11 +69,13 @@ export default function SiteHeader() {
     megaTimer.current = window.setTimeout(() => setMega(false), 90);
   };
 
-  // Bar skin: light-solid once scrolled, otherwise transparent over the hero
-  // (and over the dark mobile menu). The mega panel is dark on its own — the
-  // bar itself never goes dark.
+  // Bar skin: light-solid once scrolled *or* while the mega menu is open (so it
+  // isn't left transparent over the hero when the panel drops), otherwise
+  // transparent over the hero (and over the dark mobile menu). Closing the mega
+  // at the top returns the bar to transparent. The mega panel is dark on its
+  // own — the bar itself never goes dark.
   const barSkin =
-    scrolled && !open
+    (scrolled || mega) && !open
       ? "border-b border-line bg-paper/85 text-ink backdrop-blur-md"
       : "border-b-0 bg-transparent text-paper";
   // The bar only retracts when nothing is expanded over it.

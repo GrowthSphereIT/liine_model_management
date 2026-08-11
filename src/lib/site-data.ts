@@ -10,7 +10,7 @@
 export const DIVISIONS = [
   { id: "lei", label: "Lei", note: "Donne", desc: "Campagne, sfilate e fitting.", href: "/?div=lei#board" },
   { id: "lui", label: "Lui", note: "Uomini", desc: "Campagne, sfilate e fitting.", href: "/?div=lui#board" },
-  { id: "kids", label: "Kids", note: "In arrivo", desc: "Divisione in preparazione.", href: "/?div=kids#board" },
+  { id: "kids", label: "Kids", note: "Bambini", desc: "Campagne, sfilate e fitting.", href: "/?div=kids#board" },
 ] as const;
 
 // Simple desktop links shown alongside the "Modelli" mega-menu trigger.
@@ -60,7 +60,7 @@ export const SOCIALS = [
 export const MOBILE_NAV = [
   { label: "Lei", href: "/?div=lei#board", desc: "Donne · board" },
   { label: "Lui", href: "/?div=lui#board", desc: "Uomini · board" },
-  { label: "Kids", href: "/?div=kids#board", desc: "In arrivo" },
+  { label: "Kids", href: "/?div=kids#board", desc: "Bambini · board" },
   { label: "Casting", href: "/candidatura", desc: "Candidature" },
   { label: "Contatti", href: "/richiesta", desc: "Richiesta clienti" },
 ] as const;
@@ -152,13 +152,13 @@ export const MODELS = Array.from(
 // wordmarks (SVG). Placeholder association, marked for replacement with the
 // real client roster / officially licensed marks.
 export const BRANDS = [
-  { name: "A. Filippi", src: "/logos/a-filippi.svg" },
-  { name: "Ermanno Scervino", src: "/logos/ermanno-scervino.svg" },
-  { name: "Vivienne Westwood", src: "/logos/vivienne-westwood.svg" },
-  { name: "Fendi", src: "/logos/fendi.svg" },
-  { name: "Brunello Cucinelli", src: "/logos/brunello-cucinelli.svg" },
-  { name: "Chiara Boni", src: "/logos/chiara-boni.svg" },
-  { name: "Fabiana Filippi", src: "/logos/fabiana-filippi.svg" },
+  { name: "A. Filippi", src: "/logos/a-filippi.svg", ratio: "200 / 72" },
+  { name: "Ermanno Scervino", src: "/logos/ermanno-scervino.svg", ratio: "220 / 72" },
+  { name: "Vivienne Westwood", src: "/logos/vivienne-westwood.svg", ratio: "320 / 72" },
+  { name: "Fendi", src: "/logos/fendi.svg", ratio: "200 / 72" },
+  { name: "Brunello Cucinelli", src: "/logos/brunello-cucinelli.svg", ratio: "240 / 72" },
+  { name: "Chiara Boni", src: "/logos/chiara-boni.svg", ratio: "240 / 72" },
+  { name: "Fabiana Filippi", src: "/logos/fabiana-filippi.svg", ratio: "280 / 72" },
 ] as const;
 
 // Real, from liinemodelmanagement.com

@@ -20,8 +20,8 @@ export default function SiteFooter() {
           <div className="flex flex-col items-center gap-6 text-center md:col-span-5 md:items-start md:text-left">
             <p className="u-eyebrow">LIINE · Model Management</p>
             <p className="max-w-xs text-[0.95rem] leading-relaxed text-ink-soft">
-              Selezione per vestibilità reale, non per misure. Divisioni Lei e
-              Lui, con Kids in arrivo. Casting aperto tutto l&apos;anno.
+              Selezione per vestibilità reale, non per misure. Divisioni Lei,
+              Lui e Kids. Casting aperto tutto l&apos;anno.
             </p>
 
             {/* Socials */}

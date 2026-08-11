@@ -346,7 +346,6 @@ body {
   gap: 1.5rem;
   padding: 1.9rem 0;
   border-top: 1px solid var(--line);
-  overflow: hidden;
 }
 @media (min-width: 768px) {
   .method-row {
@@ -354,11 +353,16 @@ body {
     padding: 2.3rem 0;
   }
 }
-/* accent wash that wipes in on hover */
+/* accent wash that wipes in on hover — bleeds to the full viewport width so
+   the highlight runs edge to edge, not clipped to the content column */
 .method-row::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
   background: var(--paper-2);
   transform: scaleY(0);
   transform-origin: bottom;
@@ -367,6 +371,52 @@ body {
 }
 .method-row:hover::before {
   transform: scaleY(1);
+}
+/* Each row owns one full-bleed hairline at its TOP edge. Hovering a row extends
+   its own top line *and* the next row's top line (which is this row's bottom
+   edge), so the shared boundary line stays extended while the pointer moves
+   between adjacent rows — it never retracts and re-draws. */
+.method-row::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  height: 1.5px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.6s var(--ease-out-quint);
+  z-index: 2;
+  pointer-events: none;
+}
+.method-row:hover::after,
+.method-row:hover + .method-row::after {
+  transform: scaleX(1);
+}
+/* Bottom edge of the last row has no following sibling, so the list itself
+   carries that closing hairline, extended when the last row is hovered. */
+.method {
+  position: relative;
+}
+.method::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  height: 1.5px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.6s var(--ease-out-quint);
+  z-index: 2;
+  pointer-events: none;
+}
+.method:has(.method-row:last-child:hover)::after {
+  transform: scaleX(1);
 }
 .method-row > * {
   position: relative;
@@ -462,29 +512,25 @@ body {
   object-fit: cover;
   border-radius: 10px;
   opacity: 0;
-  transform: translate3d(
-      calc(var(--x, 0) - 50%),
-      calc(var(--y, 0) - 50%),
-      0
-    )
-    scale(0.6) rotate(var(--r, 0deg));
+  /* Position is driven by the independent `translate` property with NO
+     transition, so a pooled image jumps straight to the cursor instead of
+     sliding in from its previous spot (or the 0,0 corner). Only the pop —
+     scale + opacity — animates. */
+  translate: calc(var(--x, 0) - 50%) calc(var(--y, 0) - 50%);
+  rotate: var(--r, 0deg);
+  scale: 0.6;
   transition:
     opacity 0.32s var(--ease-out-quint),
-    transform 0.32s var(--ease-out-quint);
-  will-change: transform, opacity;
+    scale 0.32s var(--ease-out-quint);
+  will-change: translate, scale, opacity;
   box-shadow: 0 18px 44px -22px rgba(27, 22, 18, 0.55);
 }
 .trail-item.is-on {
   opacity: 1;
-  transform: translate3d(
-      calc(var(--x, 0) - 50%),
-      calc(var(--y, 0) - 50%),
-      0
-    )
-    scale(1) rotate(var(--r, 0deg));
+  scale: 1;
   transition:
     opacity 0.13s ease-out,
-    transform 0.4s var(--ease-out-quint);
+    scale 0.4s var(--ease-out-quint);
 }
 
 /* ---- Curtain image-reveal (detail pages) ---------------------- */

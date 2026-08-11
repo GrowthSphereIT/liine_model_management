@@ -34,7 +34,7 @@ export default function CandidaturaPage() {
           </div>
           <div className="border-t border-line pt-5">
             <p className="u-eyebrow mb-2">Divisioni</p>
-            <p>Lei · Lui · Kids in arrivo.</p>
+            <p>Lei · Lui · Kids.</p>
           </div>
         </div>
       }
