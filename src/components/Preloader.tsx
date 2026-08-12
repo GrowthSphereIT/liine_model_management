@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
  * snaps to full on `window.load`, then the whole panel slides up and away like
  * a sheet, uncovering the page beneath.
  */
-export default function Preloader() {
+export default function Preloader({ onDone }: { onDone?: () => void }) {
   const [progress, setProgress] = useState(8);
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
@@ -36,6 +36,7 @@ export default function Preloader() {
       window.setTimeout(() => {
         document.body.style.overflow = "";
         setGone(true);
+        onDone?.();
       }, 450 + 950);
     };
 
