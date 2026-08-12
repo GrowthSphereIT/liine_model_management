@@ -78,26 +78,21 @@ spec:
               cpu: 100m
               memory: 256Mi
             limits:
-              cpu: 500m
+              cpu: "1"
               memory: 512Mi
+          # mongosh is a heavy Node.js client; cold-starting it on every probe
+          # gets CPU-throttled and blows past timeoutSeconds. A TCP check on the
+          # listener is instant and avoids spawning a process each interval.
           livenessProbe:
-            exec:
-              command:
-                - mongosh
-                - --quiet
-                - --eval
-                - db.adminCommand('ping')
+            tcpSocket:
+              port: mongo
             initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 3
           readinessProbe:
-            exec:
-              command:
-                - mongosh
-                - --quiet
-                - --eval
-                - db.adminCommand('ping')
+            tcpSocket:
+              port: mongo
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
