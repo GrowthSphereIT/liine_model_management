@@ -2,25 +2,27 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { updateModelAction, type FormState } from "@/app/riservato/actions";
-import type { AdminModel } from "@/lib/admin-data";
-import ModelFields from "./ModelFields";
+import { updateWorkAction, type FormState } from "@/app/riservato/actions";
+import type { AdminWork } from "@/lib/admin-data";
+import WorkFields from "./WorkFields";
 import ImageGalleryEditor from "./ImageGalleryEditor";
 
-export default function ModelEditForm({ model }: { model: AdminModel }) {
+export default function WorkEditForm({ work }: { work: AdminWork }) {
   const [state, action, pending] = useActionState<FormState, FormData>(
-    updateModelAction,
+    updateWorkAction,
     {},
   );
 
   return (
     <form action={action} className="flex flex-col gap-9">
-      <input type="hidden" name="id" value={model.id} />
+      <input type="hidden" name="id" value={work.id} />
 
-      <ModelFields model={model} />
+      <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
+        <WorkFields work={work} />
+      </div>
 
       <div className="border-t border-line pt-7">
-        <ImageGalleryEditor images={model.images} />
+        <ImageGalleryEditor images={work.images} />
       </div>
 
       {state.error ? (
@@ -41,7 +43,7 @@ export default function ModelEditForm({ model }: { model: AdminModel }) {
           </span>
         </button>
         <Link
-          href="/riservato/modelli"
+          href="/riservato/lavori"
           className="text-[0.6875rem] uppercase tracking-[0.2em] text-ink-faint transition-colors hover:text-ink"
         >
           Annulla

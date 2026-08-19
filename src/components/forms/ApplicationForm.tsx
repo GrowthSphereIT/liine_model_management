@@ -1,6 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
+import {
+  submitApplicationAction,
+  type FormState,
+} from "@/app/riservato/contacts-actions";
 import {
   Field,
   TextInput,
@@ -12,15 +16,18 @@ import {
 const GENERI = ["Femmina", "Maschio", "Non binario"] as const;
 
 /**
- * Open-casting application — the "farsi notare" form from the real site,
- * rebuilt in the LIINE system. Presentation build: no backend, submit resolves
- * to an on-page confirmation. */
+ * Open-casting application — the "farsi notare" form. Submissions are persisted
+ * to MongoDB and managed from the reserved area (/riservato/casting).
+ */
 export default function ApplicationForm() {
-  const [sent, setSent] = useState(false);
+  const [state, action, pending] = useActionState<FormState, FormData>(
+    submitApplicationAction,
+    {},
+  );
   const [files, setFiles] = useState<string[]>([]);
   const fileInput = useRef<HTMLInputElement | null>(null);
 
-  if (sent) {
+  if (state.ok) {
     return (
       <SuccessPanel
         title="Grazie, la tua candidatura è arrivata."
@@ -30,14 +37,7 @@ export default function ApplicationForm() {
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSent(true);
-      }}
-      className="grid gap-x-8 gap-y-7 sm:grid-cols-2"
-      noValidate={false}
-    >
+    <form action={action} className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
       <Field label="Nome" htmlFor="ap-nome">
         <TextInput id="ap-nome" name="nome" autoComplete="given-name" required />
       </Field>
@@ -181,8 +181,16 @@ export default function ApplicationForm() {
         <Consent id="ap-consenso" />
       </div>
 
+      {state.error ? (
+        <p role="alert" className="text-[0.8rem] text-accent sm:col-span-2">
+          {state.error}
+        </p>
+      ) : null}
+
       <div className="pt-2 sm:col-span-2">
-        <SubmitButton tone="dark">Invia candidatura</SubmitButton>
+        <SubmitButton tone="dark" pending={pending}>
+          Invia candidatura
+        </SubmitButton>
       </div>
     </form>
   );

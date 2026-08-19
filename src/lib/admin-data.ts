@@ -50,6 +50,30 @@ export const MODEL_DEFAULTS: ModelInfo = {
     "Rappresentanza per campagne, sfilate, editoriali e fitting couture. La selezione parte dal capo e da come cade sul corpo, non dalle misure standard.",
 };
 
+/**
+ * Editable free-text fields shown on the public work detail page — the scheda
+ * paragraph and the extra credit rows. Like ModelInfo, reads coalesce to these
+ * defaults so works uploaded before the fields existed render unchanged.
+ */
+export interface WorkInfo {
+  /** Scheda intro paragraph. */
+  intro: string;
+  /** Crediti row "Fotografia". */
+  photography: string;
+  /** Crediti row "Styling". */
+  styling: string;
+  /** Crediti row "Casting". */
+  castingCredit: string;
+}
+
+export const WORK_DEFAULTS: WorkInfo = {
+  intro:
+    "Un progetto dall'archivio LIINE: la selezione parte dal capo e da come cade sul corpo, non dalle misure standard.",
+  photography: "Da confermare",
+  styling: "Da confermare",
+  castingCredit: "LIINE Model Management",
+};
+
 // ── Document shapes ──────────────────────────────────────────────────────
 
 interface ModelDoc extends Document, Partial<ModelInfo> {
@@ -63,7 +87,7 @@ interface ModelDoc extends Document, Partial<ModelInfo> {
   updatedAt?: Date;
 }
 
-interface WorkDoc extends Document {
+interface WorkDoc extends Document, Partial<WorkInfo> {
   _id?: ObjectId;
   slug: string;
   credit: string;
@@ -73,6 +97,7 @@ interface WorkDoc extends Document {
   location: string;
   images: string[];
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 // ── Serialized (client-safe) shapes returned to pages ────────────────────
@@ -88,7 +113,7 @@ export interface AdminModel extends ModelInfo {
   createdAt: string;
 }
 
-export interface AdminWork {
+export interface AdminWork extends WorkInfo {
   id: string;
   slug: string;
   credit: string;
@@ -107,7 +132,7 @@ export interface UploadedModel extends ModelCard, ModelInfo {
   uploaded: true;
 }
 
-export interface UploadedWork extends WorkItem {
+export interface UploadedWork extends WorkItem, WorkInfo {
   uploaded: true;
 }
 
@@ -167,6 +192,16 @@ function serializeModel(doc: ModelDoc): AdminModel {
   };
 }
 
+/** Coalesce a work document's optional info fields onto the shared defaults. */
+function workInfo(doc: Partial<WorkInfo>): WorkInfo {
+  return {
+    intro: doc.intro?.trim() || WORK_DEFAULTS.intro,
+    photography: doc.photography?.trim() || WORK_DEFAULTS.photography,
+    styling: doc.styling?.trim() || WORK_DEFAULTS.styling,
+    castingCredit: doc.castingCredit?.trim() || WORK_DEFAULTS.castingCredit,
+  };
+}
+
 function serializeWork(doc: WorkDoc): AdminWork {
   return {
     id: String(doc._id),
@@ -182,6 +217,7 @@ function serializeWork(doc: WorkDoc): AdminWork {
       doc.createdAt instanceof Date
         ? doc.createdAt.toISOString()
         : String(doc.createdAt),
+    ...workInfo(doc),
   };
 }
 
@@ -262,7 +298,7 @@ export async function createWork(input: {
   year: string;
   location: string;
   images: string[];
-}): Promise<void> {
+} & Partial<WorkInfo>): Promise<void> {
   const col = await works();
   await col.insertOne({
     slug: uniqueSlug(input.credit),
@@ -273,7 +309,46 @@ export async function createWork(input: {
     location: input.location.trim(),
     images: input.images,
     createdAt: new Date(),
+    ...workInfo(input),
   });
+}
+
+/** Single work by id, for the reserved-area edit view. */
+export async function getAdminWork(id: string): Promise<AdminWork | null> {
+  if (!ObjectId.isValid(id)) return null;
+  const col = await works();
+  const doc = await col.findOne({ _id: new ObjectId(id) });
+  return doc ? serializeWork(doc) : null;
+}
+
+export async function updateWork(
+  id: string,
+  input: {
+    credit: string;
+    client: string;
+    model: string;
+    year: string;
+    location: string;
+    images: string[];
+  } & Partial<WorkInfo>,
+): Promise<void> {
+  if (!ObjectId.isValid(id)) return;
+  const col = await works();
+  await col.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        credit: input.credit.trim(),
+        client: input.client.trim(),
+        model: input.model.trim(),
+        year: input.year.trim(),
+        location: input.location.trim(),
+        images: input.images,
+        updatedAt: new Date(),
+        ...workInfo(input),
+      },
+    },
+  );
 }
 
 export async function deleteWork(id: string): Promise<void> {
@@ -414,6 +489,7 @@ export async function getUploadedWork(
       location: doc.location,
       images: doc.images,
       uploaded: true,
+      ...workInfo(doc),
     };
   } catch {
     return null;

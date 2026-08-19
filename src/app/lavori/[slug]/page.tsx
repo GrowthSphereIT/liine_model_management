@@ -13,7 +13,7 @@ import {
   workNeighbors,
   USE_PLACEHOLDERS,
 } from "@/lib/site-data";
-import { getUploadedWork } from "@/lib/admin-data";
+import { getUploadedWork, type UploadedWork } from "@/lib/admin-data";
 
 export function generateStaticParams() {
   return WORK_INDEX.map((w) => ({ slug: w.slug }));
@@ -53,6 +53,7 @@ export default async function WorkPage({
 
   const uploaded = Boolean((work as { uploaded?: boolean }).uploaded);
   const real = !USE_PLACEHOLDERS || uploaded;
+  const info = uploaded ? (work as UploadedWork) : null;
 
   const index = WORK_INDEX.findIndex((w) => w.slug === slug) + 1;
   const inIndex = index > 0;
@@ -163,11 +164,13 @@ export default async function WorkPage({
               <Reveal
                 as="p"
                 delay={160}
-                className="mt-8 max-w-md text-[1rem] leading-relaxed text-ink-soft"
+                className="mt-8 max-w-md whitespace-pre-line text-[1rem] leading-relaxed text-ink-soft"
               >
-                {real
-                  ? "Un progetto dall'archivio LIINE: la selezione parte dal capo e da come cade sul corpo, non dalle misure standard."
-                  : "Voce d'archivio segnaposto: modello, cliente, crediti e immagini qui riprodotti sono sostitutivi e verranno rimpiazzati con il progetto reale. La struttura della pagina è definitiva."}
+                {info
+                  ? info.intro
+                  : real
+                    ? "Un progetto dall'archivio LIINE: la selezione parte dal capo e da come cade sul corpo, non dalle misure standard."
+                    : "Voce d'archivio segnaposto: modello, cliente, crediti e immagini qui riprodotti sono sostitutivi e verranno rimpiazzati con il progetto reale. La struttura della pagina è definitiva."}
               </Reveal>
             </div>
 
@@ -255,9 +258,9 @@ export default async function WorkPage({
               {[
                 { k: "Cliente", v: work.client },
                 { k: "Modello", v: work.model },
-                { k: "Fotografia", v: "Da confermare" },
-                { k: "Styling", v: "Da confermare" },
-                { k: "Casting", v: "LIINE Model Management" },
+                { k: "Fotografia", v: info?.photography ?? "Da confermare" },
+                { k: "Styling", v: info?.styling ?? "Da confermare" },
+                { k: "Casting", v: info?.castingCredit ?? "LIINE Model Management" },
                 { k: "Anno", v: work.year },
               ].map((row) => (
                 <div key={row.k} className="bg-paper p-6">

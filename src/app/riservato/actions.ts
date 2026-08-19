@@ -9,42 +9,18 @@ import {
   deleteModel,
   deleteWork,
   getAdminModel,
+  getAdminWork,
   updateModel,
+  updateWork,
   type AdminDivision,
   type ModelInfo,
+  type WorkInfo,
 } from "@/lib/admin-data";
+import { filesToDataUrls, moveToFront } from "@/lib/uploads";
 
 export type FormState = { error?: string; ok?: boolean };
 
 const DIVISIONS: AdminDivision[] = ["lei", "lui", "kids"];
-const MAX_FILES = 8;
-const MAX_FILE_BYTES = 6 * 1024 * 1024; // 6MB per image
-
-async function filesToDataUrls(files: File[]): Promise<string[]> {
-  const usable = files.filter((f) => f && f.size > 0).slice(0, MAX_FILES);
-  const out: string[] = [];
-  for (const file of usable) {
-    if (!file.type.startsWith("image/")) {
-      throw new Error("Sono ammesse solo immagini.");
-    }
-    if (file.size > MAX_FILE_BYTES) {
-      throw new Error("Ogni immagine deve pesare meno di 6MB.");
-    }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    out.push(`data:${file.type};base64,${buffer.toString("base64")}`);
-  }
-  return out;
-}
-
-/** Moves the item at `index` to the front (cover position). No-op if invalid. */
-function moveToFront<T>(list: T[], index: number): T[] {
-  if (!Number.isInteger(index) || index <= 0 || index >= list.length) {
-    return list;
-  }
-  const copy = [...list];
-  const [picked] = copy.splice(index, 1);
-  return [picked, ...copy];
-}
 
 /** Reads the editable detail-page info fields shared by create and update. */
 function readModelInfo(formData: FormData): Partial<ModelInfo> {
@@ -195,6 +171,16 @@ export async function deleteModelAction(formData: FormData): Promise<void> {
 
 // ── Works ────────────────────────────────────────────────────────────────
 
+/** Reads the editable work detail-page info fields (create + update). */
+function readWorkInfo(formData: FormData): Partial<WorkInfo> {
+  return {
+    intro: String(formData.get("intro") ?? ""),
+    photography: String(formData.get("photography") ?? ""),
+    styling: String(formData.get("styling") ?? ""),
+    castingCredit: String(formData.get("castingCredit") ?? ""),
+  };
+}
+
 export async function createWorkAction(
   _prev: FormState,
   formData: FormData,
@@ -213,7 +199,15 @@ export async function createWorkAction(
     const uploaded = await filesToDataUrls(formData.getAll("images") as File[]);
     if (uploaded.length === 0) return { error: "Carica almeno un'immagine." };
     const images = moveToFront(uploaded, Number(formData.get("cover") ?? 0));
-    await createWork({ credit, client, model, year, location, images });
+    await createWork({
+      credit,
+      client,
+      model,
+      year,
+      location,
+      images,
+      ...readWorkInfo(formData),
+    });
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Salvataggio non riuscito.",
@@ -223,6 +217,73 @@ export async function createWorkAction(
   revalidatePath("/riservato/lavori");
   revalidatePath("/");
   return { ok: true };
+}
+
+/**
+ * Edits an existing work. Same index-based image handling as updateModelAction:
+ * the client sends which stored images to keep, which is the cover, and only
+ * the newly added files as multipart.
+ */
+export async function updateWorkAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  if (!(await isAuthenticated())) return { error: "Sessione scaduta." };
+
+  const id = String(formData.get("id") ?? "");
+  const credit = String(formData.get("credit") ?? "").trim();
+  const client = String(formData.get("client") ?? "").trim();
+  const model = String(formData.get("model") ?? "").trim();
+  const year = String(formData.get("year") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+
+  if (!credit) return { error: "Il titolo del lavoro è obbligatorio." };
+
+  const existing = await getAdminWork(id);
+  if (!existing) return { error: "Lavoro non trovato." };
+
+  const removed = parseIndexSet(formData.get("remove"));
+  const kept = existing.images.filter((_, i) => !removed.has(i));
+  const cover = String(formData.get("cover") ?? "");
+
+  try {
+    const added = await filesToDataUrls(formData.getAll("images") as File[]);
+
+    let images: string[];
+    const [kind, rawIdx] = cover.split(":");
+    const idx = Number(rawIdx);
+    if (kind === "new" && added[idx]) {
+      images = [added[idx], ...kept, ...added.filter((_, k) => k !== idx)];
+    } else if (kind === "existing" && existing.images[idx] && !removed.has(idx)) {
+      const coverUrl = existing.images[idx];
+      images = [coverUrl, ...kept.filter((u) => u !== coverUrl), ...added];
+    } else {
+      images = [...kept, ...added];
+    }
+
+    if (images.length === 0) {
+      return { error: "Il lavoro deve avere almeno un'immagine." };
+    }
+    await updateWork(id, {
+      credit,
+      client,
+      model,
+      year,
+      location,
+      images,
+      ...readWorkInfo(formData),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Salvataggio non riuscito.",
+    };
+  }
+
+  revalidatePath("/riservato/lavori");
+  revalidatePath(`/riservato/lavori/${id}`);
+  revalidatePath("/");
+  revalidatePath(`/lavori/${existing.slug}`);
+  redirect("/riservato/lavori");
 }
 
 export async function deleteWorkAction(formData: FormData): Promise<void> {

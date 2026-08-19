@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkForm from "@/components/admin/WorkForm";
@@ -67,14 +68,25 @@ export default async function LavoriPage() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[0.95rem] font-medium">
+                    <Link
+                      href={`/riservato/lavori/${w.id}`}
+                      className="block truncate text-[0.95rem] font-medium transition-colors hover:text-accent"
+                    >
                       {w.credit}
-                    </p>
+                    </Link>
                     <p className="truncate text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
                       {[w.client, w.location, w.year].filter(Boolean).join(" · ") || "Senza dati"}
                     </p>
                   </div>
-                  <DeleteForm id={w.id} kind="work" label={w.credit} />
+                  <div className="flex shrink-0 items-baseline gap-3">
+                    <Link
+                      href={`/riservato/lavori/${w.id}`}
+                      className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-ink"
+                    >
+                      Modifica
+                    </Link>
+                    <DeleteForm id={w.id} kind="work" label={w.credit} />
+                  </div>
                 </li>
               ))}
             </ul>

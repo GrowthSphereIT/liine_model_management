@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
+import {
+  submitRequestAction,
+  type FormState,
+} from "@/app/riservato/contacts-actions";
 import {
   Field,
   TextInput,
@@ -11,13 +15,16 @@ import {
 } from "./Fields";
 
 /**
- * Client / booking request — the "scheda madre" request form from the real
- * site, rebuilt for the dark #richiesta section. Presentation build: submit
- * resolves to an on-page confirmation, no backend. */
+ * Client / booking request — the "scheda madre" request form. Submissions are
+ * persisted to MongoDB and managed from the reserved area (/riservato/clienti).
+ */
 export default function ClientRequestForm() {
-  const [sent, setSent] = useState(false);
+  const [state, action, pending] = useActionState<FormState, FormData>(
+    submitRequestAction,
+    {},
+  );
 
-  if (sent) {
+  if (state.ok) {
     return (
       <SuccessPanel
         title="Ricevuto. Ti proponiamo una selezione mirata."
@@ -27,13 +34,7 @@ export default function ClientRequestForm() {
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSent(true);
-      }}
-      className="grid gap-x-8 gap-y-7 sm:grid-cols-2"
-    >
+    <form action={action} className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
       <Field label="Nome" htmlFor="cr-nome">
         <TextInput id="cr-nome" name="nome" autoComplete="given-name" required />
       </Field>
@@ -85,8 +86,16 @@ export default function ClientRequestForm() {
         <Consent id="cr-consenso" />
       </div>
 
+      {state.error ? (
+        <p role="alert" className="text-[0.8rem] text-accent sm:col-span-2">
+          {state.error}
+        </p>
+      ) : null}
+
       <div className="pt-2 sm:col-span-2">
-        <SubmitButton tone="dark">Invia la richiesta</SubmitButton>
+        <SubmitButton tone="dark" pending={pending}>
+          Invia la richiesta
+        </SubmitButton>
       </div>
     </form>
   );

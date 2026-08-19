@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createWorkAction, type FormState } from "@/app/riservato/actions";
 import ImagePicker from "./ImagePicker";
+import WorkFields from "./WorkFields";
 
 export default function WorkForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(
@@ -25,58 +26,7 @@ export default function WorkForm() {
       action={action}
       className="grid gap-x-8 gap-y-7 sm:grid-cols-2"
     >
-      <div className="field sm:col-span-2">
-        <label htmlFor="work-credit" className="field-label">
-          Titolo / Credito
-        </label>
-        <input
-          id="work-credit"
-          name="credit"
-          required
-          autoComplete="off"
-          placeholder="Campagna FW26"
-          className="field-input"
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="work-client" className="field-label">
-          Cliente
-        </label>
-        <input id="work-client" name="client" autoComplete="off" className="field-input" />
-      </div>
-      <div className="field">
-        <label htmlFor="work-model" className="field-label">
-          Modello
-        </label>
-        <input id="work-model" name="model" autoComplete="off" className="field-input" />
-      </div>
-
-      <div className="field">
-        <label htmlFor="work-year" className="field-label">
-          Anno
-        </label>
-        <input
-          id="work-year"
-          name="year"
-          inputMode="numeric"
-          autoComplete="off"
-          placeholder="2026"
-          className="field-input"
-        />
-      </div>
-      <div className="field">
-        <label htmlFor="work-location" className="field-label">
-          Sede
-        </label>
-        <input
-          id="work-location"
-          name="location"
-          autoComplete="off"
-          placeholder="Milano"
-          className="field-input"
-        />
-      </div>
+      <WorkFields />
 
       <div className="sm:col-span-2">
         <span className="field-label">Immagini</span>

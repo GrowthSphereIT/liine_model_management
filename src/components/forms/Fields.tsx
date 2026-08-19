@@ -58,10 +58,12 @@ export function SelectInput({
 export function SubmitButton({
   children,
   tone = "dark",
+  pending = false,
 }: {
   children: ReactNode;
   /** dark = ink button on paper; light = paper button on ink */
   tone?: "dark" | "light";
+  pending?: boolean;
 }) {
   const base =
     tone === "dark"
@@ -70,9 +72,10 @@ export function SubmitButton({
   return (
     <button
       type="submit"
-      className={`group inline-flex w-full items-center justify-between gap-3 px-7 py-4 text-[0.6875rem] font-medium uppercase tracking-[0.2em] transition-colors duration-300 sm:w-fit ${base}`}
+      disabled={pending}
+      className={`group inline-flex w-full items-center justify-between gap-3 px-7 py-4 text-[0.6875rem] font-medium uppercase tracking-[0.2em] transition-colors duration-300 disabled:opacity-60 sm:w-fit ${base}`}
     >
-      {children}
+      {pending ? "Invio…" : children}
       <span className="transition-transform duration-300 group-hover:translate-x-1">
         →
       </span>
