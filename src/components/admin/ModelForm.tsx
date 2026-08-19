@@ -3,12 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createModelAction, type FormState } from "@/app/riservato/actions";
 import ImagePicker from "./ImagePicker";
-
-const DIVISIONS = [
-  { value: "lei", label: "Lei" },
-  { value: "lui", label: "Lui" },
-  { value: "kids", label: "Kids" },
-] as const;
+import ModelFields from "./ModelFields";
 
 export default function ModelForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(
@@ -27,40 +22,11 @@ export default function ModelForm() {
 
   return (
     <form ref={formRef} action={action} className="flex flex-col gap-7">
-      <div className="field">
-        <label htmlFor="model-name" className="field-label">
-          Nome
-        </label>
-        <input
-          id="model-name"
-          name="name"
-          required
-          autoComplete="off"
-          className="field-input"
-        />
-      </div>
-
-      <fieldset>
-        <span className="field-label">Divisione</span>
-        <div className="seg">
-          {DIVISIONS.map((d, i) => (
-            <label key={d.value}>
-              <input
-                type="radio"
-                name="division"
-                value={d.value}
-                defaultChecked={i === 0}
-                className="sr-only"
-              />
-              <span className="seg-opt">{d.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <ModelFields />
 
       <div>
         <span className="field-label">Immagini</span>
-        <ImagePicker resetSignal={resetSignal} />
+        <ImagePicker key={resetSignal} />
       </div>
 
       {state.error ? (

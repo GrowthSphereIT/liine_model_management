@@ -20,9 +20,39 @@ export const DIVISION_LABELS: Record<AdminDivision, string> = {
   kids: "Kids",
 };
 
+/**
+ * Editable free-text fields shown on the public model detail page. Older
+ * documents predate these fields, so every read coalesces to these defaults —
+ * this keeps existing pages unchanged until an operator overrides them.
+ */
+export interface ModelInfo {
+  /** Sede — hero meta + scheda row. */
+  location: string;
+  /** Hero meta badge, e.g. "In roster". */
+  status: string;
+  /** Scheda row "Agenzia". */
+  agency: string;
+  /** Scheda row "Disponibilità". */
+  availability: string;
+  /** Scheda row "Casting". */
+  casting: string;
+  /** Scheda intro paragraph. */
+  intro: string;
+}
+
+export const MODEL_DEFAULTS: ModelInfo = {
+  location: "Londra",
+  status: "In roster",
+  agency: "LIINE Model Management",
+  availability: "Su richiesta",
+  casting: "Aperto tutto l'anno",
+  intro:
+    "Rappresentanza per campagne, sfilate, editoriali e fitting couture. La selezione parte dal capo e da come cade sul corpo, non dalle misure standard.",
+};
+
 // ── Document shapes ──────────────────────────────────────────────────────
 
-interface ModelDoc extends Document {
+interface ModelDoc extends Document, Partial<ModelInfo> {
   _id?: ObjectId;
   slug: string;
   name: string;
@@ -30,6 +60,7 @@ interface ModelDoc extends Document {
   /** Data URLs. Cover is images[0]. */
   images: string[];
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 interface WorkDoc extends Document {
@@ -46,7 +77,7 @@ interface WorkDoc extends Document {
 
 // ── Serialized (client-safe) shapes returned to pages ────────────────────
 
-export interface AdminModel {
+export interface AdminModel extends ModelInfo {
   id: string;
   slug: string;
   name: string;
@@ -70,7 +101,7 @@ export interface AdminWork {
   createdAt: string;
 }
 
-export interface UploadedModel extends ModelCard {
+export interface UploadedModel extends ModelCard, ModelInfo {
   division: AdminDivision;
   divisionLabel: string;
   uploaded: true;
@@ -107,6 +138,18 @@ function uniqueSlug(base: string): string {
   return `${slugify(base)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+/** Coalesce a document's optional info fields onto the shared defaults. */
+function modelInfo(doc: Partial<ModelInfo>): ModelInfo {
+  return {
+    location: doc.location?.trim() || MODEL_DEFAULTS.location,
+    status: doc.status?.trim() || MODEL_DEFAULTS.status,
+    agency: doc.agency?.trim() || MODEL_DEFAULTS.agency,
+    availability: doc.availability?.trim() || MODEL_DEFAULTS.availability,
+    casting: doc.casting?.trim() || MODEL_DEFAULTS.casting,
+    intro: doc.intro?.trim() || MODEL_DEFAULTS.intro,
+  };
+}
+
 function serializeModel(doc: ModelDoc): AdminModel {
   return {
     id: String(doc._id),
@@ -120,6 +163,7 @@ function serializeModel(doc: ModelDoc): AdminModel {
       doc.createdAt instanceof Date
         ? doc.createdAt.toISOString()
         : String(doc.createdAt),
+    ...modelInfo(doc),
   };
 }
 
@@ -161,7 +205,7 @@ export async function createModel(input: {
   name: string;
   division: AdminDivision;
   images: string[];
-}): Promise<void> {
+} & Partial<ModelInfo>): Promise<void> {
   const col = await models();
   await col.insertOne({
     slug: uniqueSlug(input.name),
@@ -169,7 +213,40 @@ export async function createModel(input: {
     division: input.division,
     images: input.images,
     createdAt: new Date(),
+    ...modelInfo(input),
   });
+}
+
+/** Single model by id, for the reserved-area edit view. */
+export async function getAdminModel(id: string): Promise<AdminModel | null> {
+  if (!ObjectId.isValid(id)) return null;
+  const col = await models();
+  const doc = await col.findOne({ _id: new ObjectId(id) });
+  return doc ? serializeModel(doc) : null;
+}
+
+export async function updateModel(
+  id: string,
+  input: {
+    name: string;
+    division: AdminDivision;
+    images: string[];
+  } & Partial<ModelInfo>,
+): Promise<void> {
+  if (!ObjectId.isValid(id)) return;
+  const col = await models();
+  await col.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        name: input.name.trim(),
+        division: input.division,
+        images: input.images,
+        updatedAt: new Date(),
+        ...modelInfo(input),
+      },
+    },
+  );
 }
 
 export async function deleteModel(id: string): Promise<void> {
@@ -259,6 +336,7 @@ function toUploadedModel(doc: ModelDoc): UploadedModel {
     division: doc.division,
     divisionLabel: DIVISION_LABELS[doc.division] ?? doc.division,
     uploaded: true,
+    ...modelInfo(doc),
   };
 }
 

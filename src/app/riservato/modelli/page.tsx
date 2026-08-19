@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import ModelForm from "@/components/admin/ModelForm";
@@ -70,10 +71,21 @@ export default async function ModelliPage() {
                     </span>
                   </div>
                   <div className="mt-2 flex items-baseline justify-between gap-2 border-t border-line pt-2">
-                    <span className="truncate text-[0.85rem] font-medium">
+                    <Link
+                      href={`/riservato/modelli/${m.id}`}
+                      className="truncate text-[0.85rem] font-medium transition-colors hover:text-accent"
+                    >
                       {m.name}
-                    </span>
-                    <DeleteForm id={m.id} kind="model" label={m.name} />
+                    </Link>
+                    <div className="flex shrink-0 items-baseline gap-3">
+                      <Link
+                        href={`/riservato/modelli/${m.id}`}
+                        className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-ink"
+                      >
+                        Modifica
+                      </Link>
+                      <DeleteForm id={m.id} kind="model" label={m.name} />
+                    </div>
                   </div>
                 </li>
               ))}

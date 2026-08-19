@@ -108,9 +108,9 @@ export default async function ModelPage({
             >
               <span className="text-paper">Divisione {model.divisionLabel}</span>
               <span className="hidden sm:inline text-paper/40">/</span>
-              <span>In roster</span>
+              <span>{model.status}</span>
               <span className="hidden sm:inline text-paper/40">/</span>
-              <span>Londra</span>
+              <span>{model.location}</span>
             </div>
           </div>
         </section>
@@ -127,21 +127,19 @@ export default async function ModelPage({
               <Reveal
                 as="p"
                 delay={160}
-                className="mt-8 max-w-md text-[1rem] leading-relaxed text-ink-soft"
+                className="mt-8 max-w-md whitespace-pre-line text-[1rem] leading-relaxed text-ink-soft"
               >
-                Rappresentanza per campagne, sfilate, editoriali e fitting
-                couture. La selezione parte dal capo e da come cade sul corpo,
-                non dalle misure standard.
+                {model.intro}
               </Reveal>
             </div>
 
             <dl className="md:col-span-5 md:col-start-8">
               {[
                 { k: "Divisione", v: model.divisionLabel },
-                { k: "Agenzia", v: "LIINE Model Management" },
-                { k: "Sede", v: "Londra" },
-                { k: "Disponibilità", v: "Su richiesta" },
-                { k: "Casting", v: "Aperto tutto l'anno" },
+                { k: "Agenzia", v: model.agency },
+                { k: "Sede", v: model.location },
+                { k: "Disponibilità", v: model.availability },
+                { k: "Casting", v: model.casting },
               ].map((row, i) => (
                 <Reveal
                   key={row.k}
