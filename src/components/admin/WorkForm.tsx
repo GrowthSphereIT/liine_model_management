@@ -80,7 +80,7 @@ export default function WorkForm() {
 
       <div className="sm:col-span-2">
         <span className="field-label">Immagini</span>
-        <ImagePicker resetSignal={resetSignal} />
+        <ImagePicker key={resetSignal} />
       </div>
 
       {state.error ? (

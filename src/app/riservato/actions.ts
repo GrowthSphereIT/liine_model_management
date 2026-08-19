@@ -210,8 +210,9 @@ export async function createWorkAction(
   if (!credit) return { error: "Il titolo del lavoro è obbligatorio." };
 
   try {
-    const images = await filesToDataUrls(formData.getAll("images") as File[]);
-    if (images.length === 0) return { error: "Carica almeno un'immagine." };
+    const uploaded = await filesToDataUrls(formData.getAll("images") as File[]);
+    if (uploaded.length === 0) return { error: "Carica almeno un'immagine." };
+    const images = moveToFront(uploaded, Number(formData.get("cover") ?? 0));
     await createWork({ credit, client, model, year, location, images });
   } catch (err) {
     return {
