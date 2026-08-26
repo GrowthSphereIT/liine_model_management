@@ -97,13 +97,13 @@ function titleCase(input) {
 
 // Turn an absolute file path under /public into a URL-encoded public path.
 function toPublicUrl(absPath) {
-  const rel = relative(join(root, "public"), absPath).split("/");
+  const rel = relative(join(root, "public"), absPath).split(/[\\/]/);
   return "/" + rel.map(encodeURIComponent).join("/");
 }
 
 // Rank for ordering: cover (viso) first, then portfolio, polaroids last.
 function rank(relPath) {
-  const lower = relPath.toLowerCase();
+  const lower = relPath.toLowerCase().replace(/\\/g, "/");
   const base = lower.split("/").pop() ?? "";
   if (base.startsWith("viso")) return 0;
   if (lower.includes("pola")) return 2;

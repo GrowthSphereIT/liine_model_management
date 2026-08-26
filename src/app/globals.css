@@ -535,9 +535,16 @@ body {
 
 /* ---- Curtain image-reveal (detail pages) ---------------------- */
 /* A still is uncovered top-to-bottom while the image itself settles from a
-   slight over-scale — the gallery dialect of the site's mask-rise. */
-.img-reveal {
+   slight over-scale — the gallery dialect of the site's mask-rise.
+   The clip-path sits on an inner node so the observed .img-reveal-box keeps a
+   non-zero intersection box; otherwise the clipped element reports zero
+   intersection and the reveal never fires. */
+.img-reveal-box {
   position: relative;
+}
+.img-reveal {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   clip-path: inset(0 0 100% 0);
   transition: clip-path 1.15s var(--ease-out-quint);

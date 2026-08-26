@@ -59,27 +59,33 @@ export default function ImageReveal({
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={`img-reveal ${inView ? "is-in" : ""} ${className}`}
-      style={{ ["--reveal-delay" as string]: `${delay}ms` }}
-    >
-      {placeholder ? (
-        <div className="ph h-full w-full" aria-label={alt} role="img">
-          <span className="ph-tag">{label}</span>
-        </div>
-      ) : (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt={alt}
-            loading={priority ? "eager" : "lazy"}
-            sizes={sizes}
-            draggable={false}
-          />
-        </>
-      )}
+    // The observed box must never collapse: the curtain clip-path lives on the
+    // inner element instead. If the clip sat on the observed node, Chromium
+    // would compute a zero intersection (the element is clipped to 0 height),
+    // isIntersecting would stay false and the reveal would deadlock — the still
+    // would load but never uncover.
+    <div ref={ref} className={`img-reveal-box ${className}`}>
+      <div
+        className={`img-reveal ${inView ? "is-in" : ""}`}
+        style={{ ["--reveal-delay" as string]: `${delay}ms` }}
+      >
+        {placeholder ? (
+          <div className="ph h-full w-full" aria-label={alt} role="img">
+            <span className="ph-tag">{label}</span>
+          </div>
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={alt}
+              loading={priority ? "eager" : "lazy"}
+              sizes={sizes}
+              draggable={false}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }
