@@ -217,13 +217,32 @@ export default function SiteHeader() {
                   }}
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
-                    <span
-                      aria-hidden
-                      className="ph ph-cover transition-transform duration-[900ms] group-hover:scale-[1.04]"
-                      style={{ transitionTimingFunction: "var(--ease-out-quint)" }}
-                    >
-                      <span className="ph-tag">Segnaposto</span>
-                    </span>
+                    {d.cover ? (
+                      <img
+                        src={d.cover}
+                        alt=""
+                        aria-hidden
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full object-cover object-top grayscale transition-transform duration-[900ms] group-hover:scale-[1.04]"
+                        style={{ transitionTimingFunction: "var(--ease-out-quint)" }}
+                      />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="ph ph-cover transition-transform duration-[900ms] group-hover:scale-[1.04]"
+                        style={{ transitionTimingFunction: "var(--ease-out-quint)" }}
+                      >
+                        <span className="ph-tag">Segnaposto</span>
+                      </span>
+                    )}
+                    {/* Legibility scrim behind the division label. */}
+                    {d.cover && (
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent"
+                      />
+                    )}
                     <span className="u-display absolute bottom-3 left-4 z-[2] text-[2.4rem] leading-none text-paper transition-transform duration-500 group-hover:-translate-y-0.5">
                       {d.label}
                     </span>

@@ -8,9 +8,9 @@
 // back to the home board with the matching filter preselected (read by Board
 // from the `div` query param).
 export const DIVISIONS = [
-  { id: "lei", label: "Lei", note: "Donne", desc: "Campagne, sfilate e fitting.", href: "/?div=lei#board" },
-  { id: "lui", label: "Lui", note: "Uomini", desc: "Campagne, sfilate e fitting.", href: "/?div=lui#board" },
-  { id: "kids", label: "Kids", note: "Bambini", desc: "Campagne, sfilate e fitting.", href: "/?div=kids#board" },
+  { id: "lei", label: "Lei", note: "Donne", desc: "Campagne, sfilate e fitting.", href: "/?div=lei#board", cover: "/models/DINA%20H%20177/3.jpg" },
+  { id: "lui", label: "Lui", note: "Uomini", desc: "Campagne, sfilate e fitting.", href: "/?div=lui#board", cover: "/models/BRUNO%20H190/2.JPG" },
+  { id: "kids", label: "Kids", note: "Bambini", desc: "Campagne, sfilate e fitting.", href: "/?div=kids#board", cover: null },
 ] as const;
 
 // Simple desktop links shown alongside the "Modelli" mega-menu trigger.

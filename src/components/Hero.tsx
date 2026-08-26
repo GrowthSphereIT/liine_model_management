@@ -80,7 +80,7 @@ export default function Hero() {
             <p className="mb-3 text-center text-[0.625rem] uppercase tracking-[0.28em] text-paper/70 md:text-left">
               The Art of Fitting · Londra
             </p>
-            <p className="max-w-none text-balance text-center text-[1.05rem] leading-snug text-paper/90 md:max-w-md md:text-left">
+            <p className="max-w-none text-center text-[1.05rem] leading-snug text-paper/90 md:text-left">
               La vestibilità non si sceglie con lo sguardo, ma con la
               precisione.
             </p>
