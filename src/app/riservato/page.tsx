@@ -72,8 +72,8 @@ export default async function DashboardPage() {
           Panoramica
         </h1>
         <p className="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-ink-soft">
-          Da qui carichi e gestisci i contenuti del sito — i volti del board e i
-          lavori dell&apos;indice — e i contatti in arrivo dai form di casting e
+          Da qui carichi e gestisci i contenuti del sito (i volti del board e i
+          lavori dell&apos;indice) e i contatti in arrivo dai form di casting e
           clienti. Le modifiche ai contenuti sono pubblicate immediatamente.
         </p>
         {!online && (

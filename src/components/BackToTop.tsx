@@ -19,8 +19,14 @@ export default function BackToTop() {
       const heroBottom = hero
         ? hero.offsetTop + hero.offsetHeight
         : window.innerHeight;
-      // Reveal once we've scrolled essentially past the hero.
-      setVisible(window.scrollY > heroBottom - 80);
+      const pastHero = window.scrollY > heroBottom - 80;
+      // Hide once the sheet-reveal footer starts to uncover at the bottom.
+      const footer = document.querySelector("footer");
+      const footerH = footer instanceof HTMLElement ? footer.offsetHeight : 0;
+      const docH = document.documentElement.scrollHeight;
+      const beforeFooter =
+        docH - (window.scrollY + window.innerHeight) > footerH;
+      setVisible(pastHero && beforeFooter);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(compute);

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import RevealShell from "@/components/RevealShell";
 import Lines from "@/components/Lines";
 import Reveal from "@/components/Reveal";
 
@@ -28,7 +28,7 @@ export default function FormLayout({
   children: ReactNode;
 }) {
   return (
-    <>
+    <RevealShell>
       <SiteHeader />
 
       <main className="flex-1">
@@ -83,8 +83,6 @@ export default function FormLayout({
           </div>
         </section>
       </main>
-
-      <SiteFooter />
-    </>
+    </RevealShell>
   );
 }

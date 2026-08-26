@@ -3,9 +3,27 @@ import FormLayout from "@/components/forms/FormLayout";
 import ClientRequestForm from "@/components/forms/ClientRequestForm";
 
 export const metadata: Metadata = {
-  title: "Richiesta clienti · LIINE",
+  title: "Richiesta clienti: prenota i modelli",
   description:
-    "Campagne, sfilate, editoriali o fitting couture: descrivi la richiesta e LIINE Model Management propone una selezione mirata di modelli.",
+    "Campagne, sfilate, editoriali o fitting couture: descrivi il progetto e LIINE Model Management propone una selezione mirata di modelli, di norma entro un giorno lavorativo.",
+  keywords: [
+    "prenotare modelli",
+    "booking modelli",
+    "agenzia di modelli",
+    "fitting",
+    "showroom",
+    "campagne moda",
+    "sfilate",
+    "LIINE",
+  ],
+  alternates: { canonical: "/richiesta" },
+  openGraph: {
+    type: "website",
+    url: "/richiesta",
+    title: "Richiesta clienti · LIINE Model Management",
+    description:
+      "Descrivi il progetto e ricevi una selezione mirata di modelli per campagne, sfilate, editoriali e fitting couture.",
+  },
 };
 
 export default function RichiestaPage() {

@@ -101,7 +101,7 @@ export default function SiteHeader() {
               setMega(false);
             }}
             className="group flex items-baseline gap-2"
-            aria-label="LIINE — home"
+            aria-label="LIINE, home"
           >
             <span className="u-display text-[1.4rem] leading-none tracking-[-0.04em]">
               LIINE

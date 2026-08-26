@@ -130,19 +130,20 @@ export function workNeighbors(slug: string): { prev: WorkItem; next: WorkItem } 
   };
 }
 
-// The method — presented as an editorial index, not cards.
+// The method — presented as an editorial index, not cards. Copy from the
+// agency deck: fitting-first selection, targeted profiles, the 41-point measure.
 export const METHOD = [
   {
-    term: "Selezione per fit",
-    desc: "Non partiamo dalle misure standard, ma dal capo e da come cade sul corpo giusto.",
+    term: "Fitting e showroom",
+    desc: "Modelli su misura per fitting e showroom: niente casting di massa, ma il profilo giusto per il capo.",
   },
   {
-    term: "Due divisioni",
-    desc: "Lei e Lui: board curati, aggiornati e pronti per campagne, sfilate e fitting.",
+    term: "Profili mirati",
+    desc: "Ogni richiesta è trattata con la massima precisione: selezioniamo solo i profili perfetti per il brand.",
   },
   {
-    term: "Casting aperto",
-    desc: "Un canale sempre attivo per nuovi volti e per le richieste dei clienti.",
+    term: "41 punti misura",
+    desc: "Ogni modello è misurato in 41 punti del corpo, dalla testa ai piedi, per proporzioni esatte e vestibilità garantita.",
   },
 ] as const;
 
@@ -182,9 +183,12 @@ export const BRANDS = [
   { name: "Fabiana Filippi", src: "/logos/fabiana-filippi.svg", ratio: "280 / 72" },
 ] as const;
 
-// Real, from liinemodelmanagement.com
+// Real, from liinemodelmanagement.com and the agency deck.
 export const LEGAL = {
   entity: "LIINE Ltd",
   address: "1 New Providence Wharf, Fairmont Avenue, Londra, E14 9PB, Regno Unito",
   vat: "GB500653922",
+  email: "info@liinemodelmanagement.com",
+  website: "www.liinemodelmanagement.com",
+  phones: ["+39 345 529 7546", "+33 7 50 68 17 34"],
 } as const;

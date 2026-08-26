@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 function fmtDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
-    ? "—"
+    ? "–"
     : d.toLocaleDateString("it-IT", {
         day: "2-digit",
         month: "2-digit",
@@ -94,7 +94,7 @@ export default async function ClientiPage({
                       {r.nome} {r.cognome}
                     </td>
                     <td className="py-4 pr-4 text-ink-soft">
-                      <span className="block">{r.azienda || "—"}</span>
+                      <span className="block">{r.azienda || "–"}</span>
                       {r.citta ? (
                         <span className="mt-0.5 block text-[0.7rem] uppercase tracking-[0.14em] text-ink-faint">
                           {r.citta}

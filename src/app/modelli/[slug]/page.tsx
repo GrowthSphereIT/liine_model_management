@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import RevealShell from "@/components/RevealShell";
 import Lines from "@/components/Lines";
 import Reveal from "@/components/Reveal";
 import ImageReveal from "@/components/ImageReveal";
@@ -25,8 +25,15 @@ export async function generateMetadata({
   const m = await getUploadedModel(slug);
   if (!m) return {};
   return {
-    title: `${m.name} · ${m.divisionLabel} · LIINE`,
-    description: `${m.name}, divisione ${m.divisionLabel} di LIINE Model Management. Rappresentanza per campagne, sfilate e fitting.`,
+    title: `${m.name} · Modello ${m.divisionLabel}`,
+    description: `${m.name}, modello della divisione ${m.divisionLabel} di LIINE Model Management a Londra. Disponibile per campagne, sfilate, editoriali e fitting.`,
+    alternates: { canonical: `/modelli/${m.slug}` },
+    openGraph: {
+      type: "profile",
+      title: `${m.name} · ${m.divisionLabel} · LIINE Model Management`,
+      description: `${m.name}, modello ${m.divisionLabel} di LIINE. Campagne, sfilate, editoriali e fitting.`,
+      images: m.portfolio[0] ? [{ url: m.portfolio[0], alt: `${m.name}, modello ${m.divisionLabel} LIINE` }] : undefined,
+    },
   };
 }
 
@@ -57,7 +64,7 @@ export default async function ModelPage({
   ];
 
   return (
-    <>
+    <RevealShell>
       <SiteHeader />
 
       <main className="flex-1">
@@ -66,7 +73,7 @@ export default async function ModelPage({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={cover}
-            alt={`${model.name} — LIINE`}
+            alt={`${model.name}, modello ${model.divisionLabel} di LIINE Model Management`}
             className="absolute inset-0 h-full w-full object-cover object-top"
             style={{ animation: "liine-kenburns 14s ease-out forwards" }}
             draggable={false}
@@ -197,7 +204,7 @@ export default async function ModelPage({
                 >
                   <ImageReveal
                     src={src}
-                    alt={`${model.name} — still ${i + 2}`}
+                    alt={`${model.name}, portfolio foto ${i + 2}`}
                     className="aspect-[3/4] w-full bg-paper-3"
                     sizes="(min-width: 640px) 70vw, 100vw"
                     placeholder={false}
@@ -297,8 +304,6 @@ export default async function ModelPage({
           ))}
         </nav>
       </main>
-
-      <SiteFooter />
-    </>
+    </RevealShell>
   );
 }

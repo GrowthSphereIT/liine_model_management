@@ -35,7 +35,7 @@ export default function ContactPhotos({
   }, [open, full]);
 
   if (images.length === 0) {
-    return <span className="text-ink-faint">—</span>;
+    return <span className="text-ink-faint">–</span>;
   }
 
   return (
@@ -104,7 +104,7 @@ export default function ContactPhotos({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={src}
-                      alt={`${label} — foto ${i + 1}`}
+                      alt={`${label}, foto ${i + 1}`}
                       className="h-full w-full object-cover"
                     />
                   </button>
@@ -135,7 +135,7 @@ export default function ContactPhotos({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={images[full]}
-            alt={`${label} — foto ${full + 1}`}
+            alt={`${label}, foto ${full + 1}`}
             className="max-h-full max-w-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />

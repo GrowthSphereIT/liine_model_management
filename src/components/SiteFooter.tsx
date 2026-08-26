@@ -18,11 +18,37 @@ export default function SiteFooter() {
         {/* Top — brand column + link columns */}
         <div className="grid gap-12 border-b border-line pb-14 md:grid-cols-12">
           <div className="flex flex-col items-center gap-6 text-center md:col-span-5 md:items-start md:text-left">
-            <p className="u-eyebrow">LIINE · Model Management</p>
+            <p className="u-eyebrow">LIINE · The Art of Fitting</p>
             <p className="max-w-xs text-[0.95rem] leading-relaxed text-ink-soft">
-              Selezione per vestibilità reale, non per misure. Divisioni Lei,
-              Lui e Kids. Casting aperto tutto l&apos;anno.
+              Agenzia boutique di model management: selezione per vestibilità
+              reale, non per misure. Ogni modello misurato in 41 punti. Casting
+              aperto tutto l&apos;anno.
             </p>
+
+            {/* Contacts */}
+            <div className="mt-1">
+              <p className="u-eyebrow mb-3">Contatti</p>
+              <ul className="flex flex-col items-center gap-1.5 text-[0.95rem] text-ink-soft md:items-start">
+                <li>
+                  <a
+                    href={`mailto:${LEGAL.email}`}
+                    className="u-link transition-colors duration-300 hover:text-ink"
+                  >
+                    {LEGAL.email}
+                  </a>
+                </li>
+                {LEGAL.phones.map((p) => (
+                  <li key={p}>
+                    <a
+                      href={`tel:${p.replace(/\s+/g, "")}`}
+                      className="u-link transition-colors duration-300 hover:text-ink"
+                    >
+                      {p}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {/* Socials */}
             <div className="mt-2">
@@ -79,7 +105,7 @@ export default function SiteFooter() {
         <div className="overflow-hidden py-8 text-center sm:py-10 md:text-left">
           <Link
             href="/#top"
-            aria-label="LIINE — home"
+            aria-label="LIINE, home"
             className="block"
           >
             <span

@@ -71,12 +71,12 @@ const DIVISION_BY_NAME = {
   JULIE: "lei",
   TATIANA: "lei",
   TATYANA: "lei",
-  YULII: "lei",
   BRUNO: "lui",
   GIOVANNI: "lui",
   GUI: "lui",
   HELIOS: "lui",
   ISAAC: "lui",
+  YULII: "lui",
 };
 
 const IMAGE_RE = /\.(jpe?g|png|webp)$/i;

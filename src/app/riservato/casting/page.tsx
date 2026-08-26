@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 function fmtDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
-    ? "—"
+    ? "–"
     : d.toLocaleDateString("it-IT", {
         day: "2-digit",
         month: "2-digit",
@@ -31,7 +31,7 @@ function measures(a: AdminApplication): string {
       `${a.seno || "–"}/${a.vita || "–"}/${a.bacino || "–"}`,
     a.scarpe && `${a.scarpe} EU`,
   ].filter(Boolean);
-  return parts.join(" · ") || "—";
+  return parts.join(" · ") || "–";
 }
 
 export default async function CastingPage({
@@ -123,7 +123,7 @@ export default async function CastingPage({
                         {a.whatsapp ? ` · WA ${a.whatsapp}` : ""}
                       </span>
                     </td>
-                    <td className="py-4 pr-4 text-ink-soft">{a.citta || "—"}</td>
+                    <td className="py-4 pr-4 text-ink-soft">{a.citta || "–"}</td>
                     <td className="py-4 pr-4 text-[0.72rem] text-ink-soft">
                       {measures(a)}
                     </td>

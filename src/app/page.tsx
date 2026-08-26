@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import Hero from "@/components/Hero";
 import Board from "@/components/Board";
 import Reveal from "@/components/Reveal";
@@ -11,9 +10,7 @@ import MethodList from "@/components/MethodList";
 import LogoMarquee from "@/components/LogoMarquee";
 import ImageTrail from "@/components/ImageTrail";
 import WorkIndex from "@/components/WorkIndex";
-import FooterReveal from "@/components/FooterReveal";
-import ScrollBlur from "@/components/ScrollBlur";
-import BackToTop from "@/components/BackToTop";
+import RevealShell from "@/components/RevealShell";
 import Preloader from "@/components/Preloader";
 import { MODELS, LAVORI_ENABLED } from "@/lib/site-data";
 import { getPublicBoard, getPublicWorks } from "@/lib/admin-data";
@@ -32,12 +29,7 @@ export default async function Home() {
       {/* Initial load screen — lifts away once everything has loaded */}
       <Preloader />
 
-      {/* Content column — opaque and lifted above the footer so it slides over
-          it while scrolling and only uncovers it at the very end (sheet reveal). */}
-      <div
-        className="relative z-10 bg-paper"
-        style={{ boxShadow: "0 34px 60px -26px rgba(27,22,18,0.5)" }}
-      >
+      <RevealShell>
         <SiteHeader />
 
         <main className="flex-1">
@@ -233,7 +225,7 @@ export default async function Home() {
                 >
                   <Image
                     src="/covers/casting.webp"
-                    alt="Casting LIINE — modelli in attesa in studio"
+                    alt="Casting aperto LIINE: modelli in studio a Londra"
                     fill
                     sizes="(min-width: 768px) 50vw, 100vw"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
@@ -284,17 +276,7 @@ export default async function Home() {
         </section>
 
         </main>
-      </div>
-
-      <FooterReveal>
-        <SiteFooter />
-      </FooterReveal>
-
-      {/* Progressive frosted fade pinned to the bottom of the viewport */}
-      <ScrollBlur />
-
-      {/* Back-to-top control, hidden over the hero */}
-      <BackToTop />
+      </RevealShell>
     </>
   );
 }

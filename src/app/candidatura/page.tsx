@@ -3,9 +3,26 @@ import FormLayout from "@/components/forms/FormLayout";
 import ApplicationForm from "@/components/forms/ApplicationForm";
 
 export const metadata: Metadata = {
-  title: "Candidatura · Casting aperto · LIINE",
+  title: "Casting aperto: candidati come modello",
   description:
-    "Casting aperto tutto l'anno di LIINE Model Management. Inviaci nome, contatti, misure e alcuni scatti: valutiamo ogni profilo sulla vestibilità.",
+    "Casting aperto tutto l'anno di LIINE Model Management. Invia nome, contatti, misure e alcuni scatti: valutiamo ogni profilo sulla vestibilità reale, non solo sui numeri. Divisioni Lei, Lui e Kids.",
+  keywords: [
+    "casting modelli",
+    "casting aperto",
+    "diventare modello",
+    "diventare modella",
+    "agenzia di modelli",
+    "candidatura modello",
+    "LIINE",
+  ],
+  alternates: { canonical: "/candidatura" },
+  openGraph: {
+    type: "website",
+    url: "/candidatura",
+    title: "Casting aperto · LIINE Model Management",
+    description:
+      "Candidati come modello: casting aperto tutto l'anno, valutazione sulla vestibilità reale. Divisioni Lei, Lui e Kids.",
+  },
 };
 
 export default function CandidaturaPage() {

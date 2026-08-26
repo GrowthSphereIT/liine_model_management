@@ -45,10 +45,88 @@ const bodoni = Bodoni_Moda({
   display: "swap",
 });
 
+// Canonical origin for metadata, structured data, sitemap and robots.
+const SITE_URL = "https://liine.growthsphere.it";
+
 export const metadata: Metadata = {
-  title: "LIINE · Model Management",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "LIINE Model Management · Agenzia di modelli a Londra",
+    template: "%s · LIINE Model Management",
+  },
   description:
-    "LIINE nasce per cambiare il modo in cui la moda seleziona i modelli: selezione per vestibilità reale, non per misure. Divisioni Lei e Lui, casting aperto e richieste clienti.",
+    "LIINE è l'agenzia boutique di model management che seleziona i modelli per vestibilità reale, non per misure. Fitting, showroom, campagne e sfilate a Londra e in Europa. Ogni modello è misurato in 41 punti del corpo.",
+  applicationName: "LIINE Model Management",
+  keywords: [
+    "model management",
+    "agenzia di modelli",
+    "agenzia di moda",
+    "modelli",
+    "modelle",
+    "fitting",
+    "showroom",
+    "casting modelli",
+    "sfilate",
+    "campagne moda",
+    "Londra",
+    "The Art of Fitting",
+    "LIINE",
+  ],
+  authors: [{ name: "LIINE Model Management" }],
+  creator: "LIINE Model Management",
+  publisher: "LIINE Model Management",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "LIINE Model Management",
+    locale: "it_IT",
+    url: SITE_URL,
+    title: "LIINE Model Management · The Art of Fitting",
+    description:
+      "Agenzia boutique di model management: selezione per vestibilità reale, non per misure. Fitting, showroom, campagne e sfilate. Ogni modello è misurato in 41 punti.",
+    images: [
+      { url: "/covers/hero-lei.webp", alt: "LIINE Model Management, The Art of Fitting" },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LIINE Model Management · The Art of Fitting",
+    description:
+      "Selezione dei modelli per vestibilità reale, non per misure. Fitting, showroom, campagne e sfilate a Londra.",
+    images: ["/covers/hero-lei.webp"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  category: "fashion",
+};
+
+// Organization structured data — helps search and generative engines identify
+// the entity (name, location, contacts) behind the site.
+const ORG_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "LIINE Model Management",
+  alternateName: "LIINE",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logos/logo-liine-nero.webp`,
+  image: `${SITE_URL}/covers/hero-lei.webp`,
+  slogan: "The Art of Fitting",
+  description:
+    "Agenzia boutique di model management: selezione dei modelli per vestibilità reale, non per misure. Fitting, showroom, campagne e sfilate.",
+  email: "info@liinemodelmanagement.com",
+  telephone: "+39 345 529 7546",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "1 New Providence Wharf, Fairmont Avenue",
+    addressLocality: "London",
+    postalCode: "E14 9PB",
+    addressCountry: "GB",
+  },
+  areaServed: ["IT", "GB", "FR", "EU"],
+  sameAs: ["https://www.liinemodelmanagement.com"],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -58,6 +136,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${grotesk.variable} ${bodoni.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
+        />
         {children}
       </body>
     </html>

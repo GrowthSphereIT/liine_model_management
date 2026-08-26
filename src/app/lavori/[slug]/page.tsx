@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import RevealShell from "@/components/RevealShell";
 import Lines from "@/components/Lines";
 import Reveal from "@/components/Reveal";
 import ImageReveal from "@/components/ImageReveal";
@@ -34,8 +34,8 @@ export async function generateMetadata({
   const isUploaded = Boolean((w as { uploaded?: boolean }).uploaded);
   return {
     title: isUploaded
-      ? `${w.credit} · LIINE`
-      : `${w.credit} · LIINE (segnaposto)`,
+      ? `${w.credit}`
+      : `${w.credit} (segnaposto)`,
     description: `${w.credit}${w.client ? `, ${w.client}` : ""}. LIINE Model Management.`,
   };
 }
@@ -73,7 +73,7 @@ export default async function WorkPage({
   ];
 
   return (
-    <>
+    <RevealShell>
       <SiteHeader />
 
       <main className="flex-1">
@@ -85,7 +85,7 @@ export default async function WorkPage({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={lead}
-              alt={`${work.credit} — ${work.client}`}
+              alt={`${work.credit}, ${work.client}`}
               className="absolute inset-0 h-full w-full object-cover object-top"
               style={{ animation: "liine-kenburns 14s ease-out forwards" }}
               draggable={false}
@@ -225,7 +225,7 @@ export default async function WorkPage({
                 >
                   <ImageReveal
                     src={src}
-                    alt={`${work.credit} — ${i + 2}`}
+                    alt={`${work.credit}, foto ${i + 2}`}
                     className="aspect-[3/4] w-full bg-paper-3"
                     sizes="(min-width: 640px) 68vw, 100vw"
                     placeholder={!real}
@@ -338,8 +338,6 @@ export default async function WorkPage({
           ))}
         </nav>
       </main>
-
-      <SiteFooter />
-    </>
+    </RevealShell>
   );
 }
