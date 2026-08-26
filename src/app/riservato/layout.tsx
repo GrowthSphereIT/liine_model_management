@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import TourProvider from "@/components/admin/tour/TourProvider";
 
 export const metadata: Metadata = {
   title: "Area riservata · LIINE",
@@ -10,5 +11,5 @@ export default function RiservatoLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <TourProvider>{children}</TourProvider>;
 }

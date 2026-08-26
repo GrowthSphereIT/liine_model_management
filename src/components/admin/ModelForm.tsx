@@ -24,7 +24,7 @@ export default function ModelForm() {
     <form ref={formRef} action={action} className="flex flex-col gap-7">
       <ModelFields />
 
-      <div>
+      <div data-tour="model-images">
         <span className="field-label">Immagini</span>
         <ImagePicker key={resetSignal} />
       </div>
@@ -43,6 +43,7 @@ export default function ModelForm() {
       <button
         type="submit"
         disabled={pending}
+        data-tour="model-submit"
         className="group inline-flex w-full items-center justify-between gap-3 bg-ink px-7 py-4 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-paper transition-colors duration-300 hover:bg-accent disabled:opacity-60 sm:w-fit"
       >
         {pending ? "Salvataggio…" : "Aggiungi modello"}

@@ -72,7 +72,7 @@ export default function ModelFields({
 
   return (
     <div className="flex flex-col gap-7">
-      <div className="field">
+      <div className="field" data-tour="model-name">
         <label htmlFor="model-name" className="field-label">
           Nome
         </label>
@@ -86,7 +86,7 @@ export default function ModelFields({
         />
       </div>
 
-      <fieldset>
+      <fieldset data-tour="model-division">
         <span className="field-label">Divisione</span>
         <div className="seg">
           {DIVISIONS.map((d) => (
@@ -138,7 +138,7 @@ export default function ModelFields({
         </div>
       </fieldset>
 
-      <fieldset className="border-t border-line pt-7">
+      <fieldset className="border-t border-line pt-7" data-tour="model-misure">
         <legend className="field-label mb-1">Misure (composit)</legend>
         <p className="mb-5 max-w-sm text-[0.75rem] leading-relaxed text-ink-soft">
           Usate solo per generare il composit. Lascia vuoto ciò che non serve.

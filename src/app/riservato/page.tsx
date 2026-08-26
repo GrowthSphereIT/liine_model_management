@@ -67,7 +67,7 @@ export default async function DashboardPage() {
 
   return (
     <AdminShell active="dashboard">
-      <div className="mb-12">
+      <div className="mb-12" data-tour="dash-intro">
         <h1 className="u-display text-[clamp(2.2rem,6vw,4rem)] leading-[0.92]">
           Panoramica
         </h1>
@@ -84,7 +84,10 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <div className="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+      <div
+        className="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2"
+        data-tour="dash-cards"
+      >
         {cards.map((card) => (
           <Link
             key={card.href}
@@ -112,6 +115,7 @@ export default async function DashboardPage() {
       <div className="mt-px border border-line border-t-0">
         <Link
           href="/riservato/composit"
+          data-tour="dash-composit"
           className="group flex items-center justify-between gap-6 bg-paper p-8 transition-colors duration-300 hover:bg-paper-2 sm:p-10"
         >
           <div>

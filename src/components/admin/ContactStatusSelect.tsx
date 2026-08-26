@@ -29,7 +29,7 @@ export default function ContactStatusSelect({
   const isNew = value === "false";
 
   return (
-    <form action={action}>
+    <form action={action} data-tour="contact-status">
       <input type="hidden" name="id" value={id} />
       <select
         name="handled"

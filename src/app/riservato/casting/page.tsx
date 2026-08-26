@@ -52,7 +52,10 @@ export default async function CastingPage({
 
   return (
     <AdminShell active="casting">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-ink pb-4">
+      <div
+        className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-ink pb-4"
+        data-tour="casting-head"
+      >
         <div>
           <span className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-soft">
             Contatti · Casting

@@ -25,7 +25,7 @@ export default async function ModelliPage() {
     <AdminShell active="modelli">
       <div className="grid gap-16 lg:grid-cols-12 lg:gap-12">
         {/* Create */}
-        <section className="lg:col-span-5">
+        <section className="lg:col-span-5" data-tour="model-new">
           <h1 className="u-display text-[clamp(2rem,5vw,3.2rem)] leading-[0.92]">
             Nuovo modello
           </h1>
@@ -39,7 +39,7 @@ export default async function ModelliPage() {
         </section>
 
         {/* List */}
-        <section className="lg:col-span-7">
+        <section className="lg:col-span-7" data-tour="model-list">
           <div className="mb-8 flex items-end justify-between border-b border-ink pb-4">
             <h2 className="u-display text-[clamp(1.4rem,3vw,2rem)]">Board</h2>
             <span className="text-[0.625rem] uppercase tracking-[0.24em] text-ink-soft">
@@ -94,11 +94,14 @@ export default async function ModelliPage() {
                       />
                       <Link
                         href={`/riservato/modelli/${m.id}`}
+                        data-tour="model-edit"
                         className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-ink"
                       >
                         Modifica
                       </Link>
-                      <DeleteForm id={m.id} kind="model" label={m.name} />
+                      <span data-tour="model-delete">
+                        <DeleteForm id={m.id} kind="model" label={m.name} />
+                      </span>
                     </div>
                   </div>
                 </li>

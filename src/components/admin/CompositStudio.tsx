@@ -107,7 +107,7 @@ export default function CompositStudio() {
     <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
       {/* Inputs */}
       <div className="flex flex-col gap-7 lg:col-span-5">
-        <div className="field">
+        <div className="field" data-tour="composit-name">
           <label htmlFor="composit-name" className="field-label">
             Nome
           </label>
@@ -121,12 +121,12 @@ export default function CompositStudio() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6" data-tour="composit-photos">
           <PhotoInput label="Foto fronte" url={frontUrl} onPick={pick(setFrontUrl, frontUrl)} />
           <PhotoInput label="Foto retro" url={backUrl} onPick={pick(setBackUrl, backUrl)} />
         </div>
 
-        <fieldset className="border-t border-line pt-7">
+        <fieldset className="border-t border-line pt-7" data-tour="composit-misure">
           <legend className="field-label mb-4">Misure</legend>
           <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
             {MEASURE_FIELDS.map((f) => (
@@ -155,7 +155,7 @@ export default function CompositStudio() {
           </p>
         ) : null}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" data-tour="composit-theme">
           <span className="field-label">Colore</span>
           <div className="seg">
             <button
@@ -175,7 +175,7 @@ export default function CompositStudio() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row" data-tour="composit-actions">
           <button
             type="button"
             onClick={() => generate("digital")}
@@ -209,7 +209,7 @@ export default function CompositStudio() {
       </div>
 
       {/* Preview */}
-      <div className="lg:col-span-7">
+      <div className="lg:col-span-7" data-tour="composit-preview">
         <p className="field-label mb-4">Anteprima</p>
         <CompositPreview
           data={{ name, ...measures, frontImage: frontUrl, backImage: backUrl }}

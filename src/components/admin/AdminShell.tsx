@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/riservato/actions";
+import TourStartButton from "./tour/TourStartButton";
 
 type Section = "dashboard" | "modelli" | "lavori" | "composit" | "casting" | "clienti";
 
@@ -17,6 +18,7 @@ function NavItem({ item, active }: { item: (typeof NAV)[number]; active: boolean
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
+      data-tour={`nav-${item.id}`}
       className={`group relative flex items-center py-2.5 pl-4 text-[0.8rem] font-medium tracking-[0.01em] transition-colors duration-300 ${
         active ? "text-ink" : "text-ink-faint hover:text-ink-soft"
       }`}
@@ -60,6 +62,7 @@ export default function AdminShell({
           <div className="flex items-baseline gap-3">
             <Link
               href="/riservato"
+              data-tour="brand"
               className="u-display text-[1.3rem] leading-none tracking-[-0.04em]"
             >
               LIINE
@@ -86,14 +89,18 @@ export default function AdminShell({
             ))}
           </nav>
 
-          <form action={logoutAction} className="md:mt-auto">
-            <button
-              type="submit"
-              className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink-faint transition-colors duration-300 hover:text-accent"
-            >
-              Esci
-            </button>
-          </form>
+          <div className="flex flex-col gap-4 md:mt-auto">
+            <TourStartButton />
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                data-tour="logout"
+                className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink-faint transition-colors duration-300 hover:text-accent"
+              >
+                Esci
+              </button>
+            </form>
+          </div>
         </div>
       </aside>
 

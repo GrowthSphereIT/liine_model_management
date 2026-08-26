@@ -71,6 +71,7 @@ export default function ModelCompositButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
+        data-tour="model-composit"
         className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-accent"
       >
         Composit

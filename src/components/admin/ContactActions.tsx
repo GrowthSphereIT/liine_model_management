@@ -27,6 +27,7 @@ export default function ContactActions({
     <form
       action={remove}
       className="flex justify-end"
+      data-tour="contact-actions"
       onSubmit={(e) => {
         if (!confirm(`Eliminare il contatto di "${label}"? Non è reversibile.`)) {
           e.preventDefault();
