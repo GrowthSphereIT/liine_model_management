@@ -33,6 +33,13 @@ export interface ModelFieldValues {
   availability: string;
   casting: string;
   intro: string;
+  height: string;
+  bust: string;
+  waist: string;
+  hips: string;
+  shoes: string;
+  hair: string;
+  eyes: string;
 }
 
 const INFO_ROWS: { name: keyof typeof PLACEHOLDERS; label: string }[] = [
@@ -42,6 +49,18 @@ const INFO_ROWS: { name: keyof typeof PLACEHOLDERS; label: string }[] = [
   { name: "availability", label: "Disponibilità" },
   { name: "casting", label: "Casting" },
 ];
+
+// Misure usate per generare i composit (non mostrate sulla scheda pubblica).
+const MEASURE_ROWS: { name: keyof ModelFieldValues; label: string; ph: string }[] =
+  [
+    { name: "height", label: "Altezza", ph: "178" },
+    { name: "bust", label: "Seno", ph: "81" },
+    { name: "waist", label: "Vita", ph: "61" },
+    { name: "hips", label: "Fianchi", ph: "89" },
+    { name: "shoes", label: "Scarpe", ph: "36,5" },
+    { name: "hair", label: "Capelli", ph: "Biondi" },
+    { name: "eyes", label: "Occhi", ph: "Nocciola" },
+  ];
 
 export default function ModelFields({
   model,
@@ -116,6 +135,30 @@ export default function ModelFields({
             placeholder={PLACEHOLDERS.intro}
             className="field-input"
           />
+        </div>
+      </fieldset>
+
+      <fieldset className="border-t border-line pt-7">
+        <legend className="field-label mb-1">Misure (composit)</legend>
+        <p className="mb-5 max-w-sm text-[0.75rem] leading-relaxed text-ink-soft">
+          Usate solo per generare il composit. Lascia vuoto ciò che non serve.
+        </p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
+          {MEASURE_ROWS.map((row) => (
+            <div key={row.name} className="field">
+              <label htmlFor={`model-${row.name}`} className="field-label">
+                {row.label}
+              </label>
+              <input
+                id={`model-${row.name}`}
+                name={row.name}
+                autoComplete="off"
+                defaultValue={model?.[row.name] ?? ""}
+                placeholder={row.ph}
+                className="field-input"
+              />
+            </div>
+          ))}
         </div>
       </fieldset>
     </div>

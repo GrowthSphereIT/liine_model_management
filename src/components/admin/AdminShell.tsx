@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/riservato/actions";
 
-type Section = "dashboard" | "modelli" | "lavori" | "casting" | "clienti";
+type Section = "dashboard" | "modelli" | "lavori" | "composit" | "casting" | "clienti";
 
 const NAV: { id: Section; label: string; href: string; group?: string }[] = [
   { id: "dashboard", label: "Panoramica", href: "/riservato" },
   { id: "modelli", label: "Modelli", href: "/riservato/modelli", group: "Contenuti" },
   { id: "lavori", label: "Lavori", href: "/riservato/lavori", group: "Contenuti" },
+  { id: "composit", label: "Composit", href: "/riservato/composit", group: "Strumenti" },
   { id: "casting", label: "Casting", href: "/riservato/casting", group: "Contatti" },
   { id: "clienti", label: "Clienti", href: "/riservato/clienti", group: "Contatti" },
 ];

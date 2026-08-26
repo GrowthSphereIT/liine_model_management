@@ -33,7 +33,6 @@ export const FOOTER_NAV = [
     title: "Agenzia",
     links: [
       { label: "Metodo", href: "/#metodo" },
-      { label: "Lavori", href: "/#lavori" },
       { label: "Contatti", href: "/richiesta" },
     ],
   },
@@ -72,6 +71,14 @@ export const MOBILE_NAV = [
  * restore the real photos — nothing else changes.
  */
 export const USE_PLACEHOLDERS = true;
+
+/**
+ * Feature flag — the "Lavori" area is temporarily parked (not deleted): the
+ * home section, the footer link and the single work pages are hidden while the
+ * real archive is being prepared. Flip to true to bring it back; nothing else
+ * changes.
+ */
+export const LAVORI_ENABLED = false;
 
 /**
  * Model shape shared by the board and the reserved-area data layer. The roster
@@ -141,12 +148,26 @@ export const METHOD = [
 
 export const COVERS = ["01", "02", "03", "04"] as const;
 
-// Model portraits (Lei + Lui) used by the cursor image-trail on the method
-// index. Optimised stills sourced from the roster — marked for replacement.
-export const MODELS = Array.from(
-  { length: 16 },
-  (_, i) => `/models/model-${String(i + 1).padStart(2, "0")}.jpg`,
-);
+// Model portraits used by the cursor image-trail on the method index — the
+// covers of the current roster plus a few extra stills (public/models).
+export const MODELS = [
+  "/models/AMANDA%20H180/viso.jpeg",
+  "/models/BRUNO%20H190/viso.JPG",
+  "/models/DINA%20H%20177/VISO.jpg",
+  "/models/ELINA%20H178/viso.jpeg",
+  "/models/GIOVANNI%20H181/viso.JPG",
+  "/models/GUI%20H190/viso.jpg",
+  "/models/HELIOS%20H186/portfolio/viso.jpeg",
+  "/models/ISAAC%20H186/viso.jpg",
+  "/models/JULIE%20H168/viso.jpg",
+  "/models/TATIANA%20H%20180/Viso.jpg",
+  "/models/TATYANA%20H177/Portfolio/viso.JPG",
+  "/models/YULII%20H%20185/viso.jpg",
+  "/models/AMANDA%20H180/1.jpeg",
+  "/models/BRUNO%20H190/1.JPG",
+  "/models/DINA%20H%20177/1.jpg",
+  "/models/ELINA%20H178/1.jpeg",
+];
 
 // Client / partner maison logos — reproduced in-project as monochrome
 // wordmarks (SVG). Placeholder association, marked for replacement with the

@@ -1,25 +1,31 @@
 /**
- * Initial model seeding for LIINE.
+ * Model seeding for LIINE.
  *
- * Migrates the roster that used to live hardcoded in src/lib/site-data.ts into
- * MongoDB, so from now on models are managed entirely from the reserved area
- * (/riservato). Images stay as the existing /public asset paths — nothing is
- * re-encoded. Slugs are stable (name-based) and the upsert is idempotent, so
- * re-running never duplicates or reshuffles anything.
+ * Builds the roster from the photo folders under public/models. Each folder is
+ * named "<NOME> H<altezza>" (e.g. "AMANDA H180"); the seed scans it for images,
+ * uses the "viso" shot as the board cover and the rest as portfolio stills, and
+ * stores the public /models paths directly (nothing is re-encoded).
+ *
+ * The height in the folder name is stored as a measurement (used by the composit
+ * generator); the other measurements are left blank and can be filled from the
+ * reserved area.
+ *
+ * The upsert is idempotent (stable, name-based slugs), so re-running never
+ * duplicates. To replace the previous roster, empty the collection first:
+ *   npm run db:clear
+ *   npm run seed
  *
  * Works are intentionally NOT seeded.
- *
- * Usage (with the stack up and Mongo reachable on the URI in .env.local):
- *   npm run seed
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { MongoClient } from "mongodb";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
+const MODELS_DIR = join(root, "public", "models");
 
 // ── Minimal .env.local loader (no dependency on Node's --env-file) ──────────
 function loadEnv() {
@@ -57,41 +63,124 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-// ── Roster to migrate (formerly BOARD in site-data.ts) ──────────────────────
-// images[0] is the board cover; the rest are portfolio stills. Every path
-// already exists under /public.
-const portfolio = (base, n) =>
-  Array.from({ length: n }, (_, i) => `/models/portfolio/${base}-0${i + 1}.jpg`);
+// ── Division per model (folder name, uppercased, without the height) ────────
+const DIVISION_BY_NAME = {
+  AMANDA: "lei",
+  DINA: "lei",
+  ELINA: "lei",
+  JULIE: "lei",
+  TATIANA: "lei",
+  TATYANA: "lei",
+  YULII: "lei",
+  BRUNO: "lui",
+  GIOVANNI: "lui",
+  GUI: "lui",
+  HELIOS: "lui",
+  ISAAC: "lui",
+};
 
-const ROSTER = [
-  { name: "Liubava", division: "lei", board: "lei-liubava", stills: portfolio("liubava", 1) },
-  { name: "Bianca", division: "lei", board: "lei-bianca", stills: portfolio("bianca", 1) },
-  { name: "Sara", division: "lei", board: "lei-sara", stills: portfolio("sara", 1) },
-  { name: "Nadia", division: "lei", board: "lei-nadia", stills: portfolio("nadia", 1) },
-  { name: "Iryna", division: "lei", board: "lei-iryna", stills: portfolio("iryna", 6) },
-  { name: "Daria", division: "lei", board: "lei-daria", stills: portfolio("daria", 6) },
-  { name: "Chloe", division: "lei", board: "lei-chloe", stills: portfolio("chloe", 6) },
-  { name: "Tatyana", division: "lei", board: "lei-tatyana", stills: portfolio("tatyana", 1) },
-  { name: "Straulova", division: "lei", board: "lei-straulova", stills: portfolio("straulova", 1) },
-  { name: "Emanuele", division: "lui", board: "lui-emanuele", stills: portfolio("emanuele", 4) },
-  { name: "Tommaso", division: "lui", board: "lui-tommaso", stills: portfolio("tommaso", 2) },
-];
+const IMAGE_RE = /\.(jpe?g|png|webp)$/i;
 
 function slugify(input) {
   const base = input
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return base || "voce";
 }
 
+function titleCase(input) {
+  return input.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+}
+
+// Turn an absolute file path under /public into a URL-encoded public path.
+function toPublicUrl(absPath) {
+  const rel = relative(join(root, "public"), absPath).split("/");
+  return "/" + rel.map(encodeURIComponent).join("/");
+}
+
+// Rank for ordering: cover (viso) first, then portfolio, polaroids last.
+function rank(relPath) {
+  const lower = relPath.toLowerCase();
+  const base = lower.split("/").pop() ?? "";
+  if (base.startsWith("viso")) return 0;
+  if (lower.includes("pola")) return 2;
+  return 1;
+}
+
+function collectImages(modelDir) {
+  const entries = readdirSync(modelDir, { recursive: true });
+  const files = entries
+    .map((e) => join(modelDir, e))
+    .filter((p) => IMAGE_RE.test(p) && statSync(p).isFile());
+
+  const rel = (p) => relative(modelDir, p);
+  files.sort((a, b) => {
+    const ra = rank(rel(a));
+    const rb = rank(rel(b));
+    if (ra !== rb) return ra - rb;
+    return rel(a).localeCompare(rel(b), "en", { numeric: true });
+  });
+  return files.map(toPublicUrl);
+}
+
+function parseFolder(folder) {
+  // "AMANDA H180" | "DINA H 177" | "YULII H 185"
+  const m = folder.match(/^(.+?)\s+H\s*(\d+)\s*$/i);
+  const rawName = m ? m[1].trim() : folder.trim();
+  const height = m ? m[2] : "";
+  const key = rawName.toUpperCase();
+  return {
+    key,
+    name: titleCase(rawName),
+    height,
+    division: DIVISION_BY_NAME[key] ?? "lei",
+  };
+}
+
+function buildRoster() {
+  const folders = readdirSync(MODELS_DIR).filter((f) => {
+    try {
+      return statSync(join(MODELS_DIR, f)).isDirectory();
+    } catch {
+      return false;
+    }
+  });
+
+  const roster = [];
+  for (const folder of folders) {
+    const meta = parseFolder(folder);
+    const images = collectImages(join(MODELS_DIR, folder));
+    if (images.length === 0) {
+      console.warn(`  ⚠ nessuna immagine in «${folder}» — saltato`);
+      continue;
+    }
+    roster.push({ ...meta, images });
+  }
+
+  // Lei first, then Lui; alphabetical within a division.
+  const order = { lei: 0, lui: 1, kids: 2 };
+  roster.sort(
+    (a, b) =>
+      (order[a.division] ?? 9) - (order[b.division] ?? 9) ||
+      a.name.localeCompare(b.name, "it"),
+  );
+  return roster;
+}
+
 // Deterministic, spaced timestamps preserve the display order (Lei then Lui)
 // when the app reads models back sorted by createdAt.
-const BASE = Date.UTC(2020, 0, 1);
+const BASE = Date.UTC(2024, 0, 1);
 
 async function main() {
+  const roster = buildRoster();
+  if (roster.length === 0) {
+    console.error("✗ Nessun modello trovato in public/models.");
+    process.exit(1);
+  }
+
   const client = new MongoClient(MONGODB_URI, {
     serverSelectionTimeoutMS: 8000,
   });
@@ -104,17 +193,19 @@ async function main() {
   let inserted = 0;
   let updated = 0;
 
-  for (let i = 0; i < ROSTER.length; i++) {
-    const m = ROSTER[i];
+  for (let i = 0; i < roster.length; i++) {
+    const m = roster[i];
     const slug = slugify(m.name);
-    const images = [`/models/board/${m.board}.jpg`, ...m.stills].filter(
-      (v, idx, arr) => arr.indexOf(v) === idx,
-    );
 
     const res = await models.updateOne(
       { slug },
       {
-        $set: { name: m.name, division: m.division, images },
+        $set: {
+          name: m.name,
+          division: m.division,
+          images: m.images,
+          height: m.height,
+        },
         $setOnInsert: { slug, createdAt: new Date(BASE + i * 1000) },
       },
       { upsert: true },
@@ -123,7 +214,7 @@ async function main() {
     if (res.upsertedCount) inserted++;
     else if (res.matchedCount) updated++;
     console.log(
-      `  ${res.upsertedCount ? "＋ inserito" : "↻ aggiornato"}  ${m.division.toUpperCase()}  ${m.name}  (${images.length} img)  /modelli/${slug}`,
+      `  ${res.upsertedCount ? "＋ inserito" : "↻ aggiornato"}  ${m.division.toUpperCase()}  ${m.name}  H${m.height || "?"}  (${m.images.length} img)  /modelli/${slug}`,
     );
   }
 

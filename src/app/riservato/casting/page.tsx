@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import ContactActions from "@/components/admin/ContactActions";
+import ContactPhotos from "@/components/admin/ContactPhotos";
+import ContactStatusSelect from "@/components/admin/ContactStatusSelect";
 import Pagination from "@/components/admin/Pagination";
 import { isAuthenticated } from "@/lib/auth";
 import {
@@ -93,7 +95,7 @@ export default async function CastingPage({
                 {data.items.map((a) => (
                   <tr
                     key={a.id}
-                    className={`align-top text-[0.8rem] ${a.handled ? "text-ink-soft" : "text-ink"}`}
+                    className={`text-[0.8rem] [&>td]:align-middle ${a.handled ? "text-ink-soft" : "text-ink"}`}
                   >
                     <td className="py-4 pr-4 tabular-nums text-ink-soft">
                       {fmtDate(a.createdAt)}
@@ -123,43 +125,22 @@ export default async function CastingPage({
                       {measures(a)}
                     </td>
                     <td className="py-4 pr-4">
-                      {a.images.length > 0 ? (
-                        <div className="flex items-center gap-1">
-                          {a.images.slice(0, 3).map((src, i) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              key={i}
-                              src={src}
-                              alt=""
-                              className="h-10 w-8 shrink-0 object-cover"
-                            />
-                          ))}
-                          {a.images.length > 3 ? (
-                            <span className="text-[0.7rem] text-ink-faint">
-                              +{a.images.length - 3}
-                            </span>
-                          ) : null}
-                        </div>
-                      ) : (
-                        <span className="text-ink-faint">—</span>
-                      )}
+                      <ContactPhotos
+                        images={a.images}
+                        label={`${a.nome} ${a.cognome}`}
+                      />
                     </td>
                     <td className="py-4 pr-4">
-                      <span
-                        className={`inline-block border px-2 py-0.5 text-[0.5rem] uppercase tracking-[0.18em] ${
-                          a.handled
-                            ? "border-line text-ink-faint"
-                            : "border-accent/50 text-accent"
-                        }`}
-                      >
-                        {a.handled ? "Gestito" : "Nuovo"}
-                      </span>
+                      <ContactStatusSelect
+                        id={a.id}
+                        kind="application"
+                        handled={a.handled}
+                      />
                     </td>
                     <td className="py-4 pl-4">
                       <ContactActions
                         id={a.id}
                         kind="application"
-                        handled={a.handled}
                         label={`${a.nome} ${a.cognome}`}
                       />
                     </td>

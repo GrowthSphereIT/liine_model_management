@@ -38,6 +38,14 @@ export interface ModelInfo {
   casting: string;
   /** Scheda intro paragraph. */
   intro: string;
+  // Misure per il composit (non mostrate sulla scheda pubblica). Vuote se ignote.
+  height: string;
+  bust: string;
+  waist: string;
+  hips: string;
+  shoes: string;
+  hair: string;
+  eyes: string;
 }
 
 export const MODEL_DEFAULTS: ModelInfo = {
@@ -48,6 +56,13 @@ export const MODEL_DEFAULTS: ModelInfo = {
   casting: "Aperto tutto l'anno",
   intro:
     "Rappresentanza per campagne, sfilate, editoriali e fitting couture. La selezione parte dal capo e da come cade sul corpo, non dalle misure standard.",
+  height: "",
+  bust: "",
+  waist: "",
+  hips: "",
+  shoes: "",
+  hair: "",
+  eyes: "",
 };
 
 /**
@@ -172,6 +187,13 @@ function modelInfo(doc: Partial<ModelInfo>): ModelInfo {
     availability: doc.availability?.trim() || MODEL_DEFAULTS.availability,
     casting: doc.casting?.trim() || MODEL_DEFAULTS.casting,
     intro: doc.intro?.trim() || MODEL_DEFAULTS.intro,
+    height: doc.height?.trim() || "",
+    bust: doc.bust?.trim() || "",
+    waist: doc.waist?.trim() || "",
+    hips: doc.hips?.trim() || "",
+    shoes: doc.shoes?.trim() || "",
+    hair: doc.hair?.trim() || "",
+    eyes: doc.eyes?.trim() || "",
   };
 }
 

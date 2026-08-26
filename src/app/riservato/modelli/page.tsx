@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import ModelForm from "@/components/admin/ModelForm";
 import DeleteForm from "@/components/admin/DeleteForm";
+import ModelCompositButton from "@/components/admin/ModelCompositButton";
 import { isAuthenticated } from "@/lib/auth";
 import { listModels, type AdminModel } from "@/lib/admin-data";
 
@@ -78,6 +79,19 @@ export default async function ModelliPage() {
                       {m.name}
                     </Link>
                     <div className="flex shrink-0 items-baseline gap-3">
+                      <ModelCompositButton
+                        model={{
+                          name: m.name,
+                          images: m.images,
+                          height: m.height,
+                          bust: m.bust,
+                          waist: m.waist,
+                          hips: m.hips,
+                          shoes: m.shoes,
+                          hair: m.hair,
+                          eyes: m.eyes,
+                        }}
+                      />
                       <Link
                         href={`/riservato/modelli/${m.id}`}
                         className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-ink"

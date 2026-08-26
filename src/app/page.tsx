@@ -15,7 +15,7 @@ import FooterReveal from "@/components/FooterReveal";
 import ScrollBlur from "@/components/ScrollBlur";
 import BackToTop from "@/components/BackToTop";
 import Preloader from "@/components/Preloader";
-import { MODELS } from "@/lib/site-data";
+import { MODELS, LAVORI_ENABLED } from "@/lib/site-data";
 import { getPublicBoard, getPublicWorks } from "@/lib/admin-data";
 
 // Reads uploaded content from Mongo (falls back to the static seed if the DB
@@ -23,10 +23,9 @@ import { getPublicBoard, getPublicWorks } from "@/lib/admin-data";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [board, works] = await Promise.all([
-    getPublicBoard(),
-    getPublicWorks(),
-  ]);
+  const board = await getPublicBoard();
+  // Lavori temporarily parked — only fetch the archive when the area is live.
+  const works = LAVORI_ENABLED ? await getPublicWorks() : [];
 
   return (
     <>
@@ -108,59 +107,61 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Selected work index — Elite signature */}
-        <section
-          id="lavori"
-          className="relative isolate overflow-hidden border-t border-line px-5 pt-14 pb-24 sm:px-8 sm:pt-20 sm:pb-32"
-        >
-          {/* Soft blurred accent patches, weighted toward the right */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-[2%] top-[4%] -z-10 h-[28rem] w-[28rem] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%)",
-              filter: "blur(80px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-[16%] bottom-[2%] -z-10 h-[22rem] w-[22rem] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%)",
-              filter: "blur(72px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-[44%] top-[34%] -z-10 h-[16rem] w-[16rem] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 13%, transparent), transparent 74%)",
-              filter: "blur(64px)",
-            }}
-          />
-          <div className="relative z-10 mx-auto max-w-[1600px]">
-            <div className="mb-10 flex flex-col gap-4 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
-              <Lines
-                as="h2"
-                lines={["Lavori", "selezionati"]}
-                className="u-display text-[clamp(2.2rem,6.4vw,5rem)] leading-[0.92]"
-              />
-              <Reveal
-                as="p"
-                delay={200}
-                className="max-w-xs text-[0.9rem] leading-relaxed text-ink-soft"
-              >
-                Progetti scelti tra campagne, editoriali e sfilate: dove il
-                casting per vestibilità reale ha fatto la differenza.
-              </Reveal>
-            </div>
+        {/* Selected work index — Elite signature (temporarily parked) */}
+        {LAVORI_ENABLED && (
+          <section
+            id="lavori"
+            className="relative isolate overflow-hidden border-t border-line px-5 pt-14 pb-24 sm:px-8 sm:pt-20 sm:pb-32"
+          >
+            {/* Soft blurred accent patches, weighted toward the right */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-[2%] top-[4%] -z-10 h-[28rem] w-[28rem] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%)",
+                filter: "blur(80px)",
+              }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-[16%] bottom-[2%] -z-10 h-[22rem] w-[22rem] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%)",
+                filter: "blur(72px)",
+              }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-[44%] top-[34%] -z-10 h-[16rem] w-[16rem] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, color-mix(in srgb, var(--accent) 13%, transparent), transparent 74%)",
+                filter: "blur(64px)",
+              }}
+            />
+            <div className="relative z-10 mx-auto max-w-[1600px]">
+              <div className="mb-10 flex flex-col gap-4 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
+                <Lines
+                  as="h2"
+                  lines={["Lavori", "selezionati"]}
+                  className="u-display text-[clamp(2.2rem,6.4vw,5rem)] leading-[0.92]"
+                />
+                <Reveal
+                  as="p"
+                  delay={200}
+                  className="max-w-xs text-[0.9rem] leading-relaxed text-ink-soft"
+                >
+                  Progetti scelti tra campagne, editoriali e sfilate: dove il
+                  casting per vestibilità reale ha fatto la differenza.
+                </Reveal>
+              </div>
 
-            <WorkIndex works={works} />
-          </div>
-        </section>
+              <WorkIndex works={works} />
+            </div>
+          </section>
+        )}
 
         {/* Casting aperto */}
         <section

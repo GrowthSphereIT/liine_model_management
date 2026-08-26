@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import ContactActions from "@/components/admin/ContactActions";
+import ContactStatusSelect from "@/components/admin/ContactStatusSelect";
 import Pagination from "@/components/admin/Pagination";
 import { isAuthenticated } from "@/lib/auth";
 import {
@@ -81,7 +82,7 @@ export default async function ClientiPage({
                 {data.items.map((r) => (
                   <tr
                     key={r.id}
-                    className={`align-top text-[0.8rem] ${r.handled ? "text-ink-soft" : "text-ink"}`}
+                    className={`text-[0.8rem] [&>td]:align-middle ${r.handled ? "text-ink-soft" : "text-ink"}`}
                   >
                     <td className="py-4 pr-4 tabular-nums text-ink-soft">
                       {fmtDate(r.createdAt)}
@@ -116,21 +117,16 @@ export default async function ClientiPage({
                       </span>
                     </td>
                     <td className="py-4 pr-4">
-                      <span
-                        className={`inline-block border px-2 py-0.5 text-[0.5rem] uppercase tracking-[0.18em] ${
-                          r.handled
-                            ? "border-line text-ink-faint"
-                            : "border-accent/50 text-accent"
-                        }`}
-                      >
-                        {r.handled ? "Gestito" : "Nuovo"}
-                      </span>
+                      <ContactStatusSelect
+                        id={r.id}
+                        kind="request"
+                        handled={r.handled}
+                      />
                     </td>
                     <td className="py-4 pl-4">
                       <ContactActions
                         id={r.id}
                         kind="request"
-                        handled={r.handled}
                         label={`${r.nome} ${r.cognome}`}
                       />
                     </td>

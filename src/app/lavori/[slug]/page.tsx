@@ -12,11 +12,15 @@ import {
   getWork,
   workNeighbors,
   USE_PLACEHOLDERS,
+  LAVORI_ENABLED,
 } from "@/lib/site-data";
 import { getUploadedWork, type UploadedWork } from "@/lib/admin-data";
 
+// The Lavori area is temporarily parked: don't pre-render any work pages.
 export function generateStaticParams() {
-  return WORK_INDEX.map((w) => ({ slug: w.slug }));
+  return LAVORI_ENABLED
+    ? WORK_INDEX.map((w) => ({ slug: w.slug }))
+    : ([] as { slug: string }[]);
 }
 
 export async function generateMetadata({
@@ -48,6 +52,7 @@ export default async function WorkPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  if (!LAVORI_ENABLED) notFound();
   const work = getWork(slug) ?? (await getUploadedWork(slug));
   if (!work) notFound();
 

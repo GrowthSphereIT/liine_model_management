@@ -31,6 +31,13 @@ function readModelInfo(formData: FormData): Partial<ModelInfo> {
     availability: String(formData.get("availability") ?? ""),
     casting: String(formData.get("casting") ?? ""),
     intro: String(formData.get("intro") ?? ""),
+    height: String(formData.get("height") ?? ""),
+    bust: String(formData.get("bust") ?? ""),
+    waist: String(formData.get("waist") ?? ""),
+    hips: String(formData.get("hips") ?? ""),
+    shoes: String(formData.get("shoes") ?? ""),
+    hair: String(formData.get("hair") ?? ""),
+    eyes: String(formData.get("eyes") ?? ""),
   };
 }
 

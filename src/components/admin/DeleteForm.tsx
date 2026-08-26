@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteModelAction, deleteWorkAction } from "@/app/riservato/actions";
+import { TrashIcon } from "./icons";
 
 /**
  * Inline delete control. Uses a native form posting a Server Action; the
@@ -28,9 +29,11 @@ export default function DeleteForm({
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
-        className="text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-colors duration-300 hover:text-accent"
+        aria-label={`Elimina ${label}`}
+        title="Elimina"
+        className="grid place-items-center p-1 text-[0.95rem] text-ink-faint transition-colors duration-300 hover:text-accent"
       >
-        Elimina
+        <TrashIcon />
       </button>
     </form>
   );

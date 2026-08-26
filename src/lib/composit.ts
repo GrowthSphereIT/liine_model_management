@@ -1,0 +1,290 @@
+/**
+ * Client-side composit (comp card) generator.
+ *
+ * Produces print-ready PDFs from a model's photos + measurements, in the two
+ * formats the agency asked for:
+ *   • "digital" — a single landscape page with front (left) and back (right)
+ *     side by side.
+ *   • "print"   — a 2-page portrait PDF split exactly in half: page 1 = front
+ *     (cover), page 2 = back (card), so a front/back print lines up perfectly.
+ */
+
+// ── Layout (mm) — each face is A5 portrait; digital is two faces wide ───────
+const FACE_W = 148;
+const FACE_H = 210;
+const MARGIN = 10;
+
+// Both faces share one identical photo rectangle (same position + size) so the
+// front and back line up, and one logo width so the mark matches on both.
+const PHOTO_TOP = 30;
+const PHOTO_H = 152;
+const PHOTO_W = FACE_W - MARGIN * 2;
+const LOGO_W = 34;
+
+// Agency contact line reproduced on the back (from the reference composit).
+export const COMPOSIT_CONTACT =
+  "it +39 345 5297546 · fr +33 750681734 · info@liinemodelmanagement.com";
+
+export type CompositMode = "digital" | "print";
+
+export interface CompositData {
+  name: string;
+  height?: string;
+  bust?: string;
+  waist?: string;
+  hips?: string;
+  shoes?: string;
+  hair?: string;
+  eyes?: string;
+  /** URL or data URL for the front (cover) photo. */
+  frontImage: string;
+  /** URL or data URL for the back (card) photo. */
+  backImage: string;
+}
+
+const MEASURES: { key: keyof CompositData; it: string; en: string }[] = [
+  { key: "height", it: "Altezza", en: "Height" },
+  { key: "bust", it: "Seno", en: "Bust" },
+  { key: "waist", it: "Vita", en: "Waist" },
+  { key: "hips", it: "Fianchi", en: "Hips" },
+  { key: "shoes", it: "Scarpe", en: "Shoes" },
+  { key: "hair", it: "Capelli", en: "Hair" },
+  { key: "eyes", it: "Occhi", en: "Eyes" },
+];
+
+function slugify(input: string): string {
+  return (
+    input
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "composit"
+  );
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Immagine non caricata: ${src}`));
+    img.src = src;
+  });
+}
+
+// Crop-to-cover a photo into a JPEG data URL at print resolution, keeping the
+// top of the frame (faces sit high in portrait stills).
+async function coverJpeg(
+  src: string,
+  wMm: number,
+  hMm: number,
+  bg = "#e9e6e1",
+): Promise<string> {
+  const img = await loadImage(src);
+  const dpi = 300;
+  const wpx = Math.max(1, Math.round((wMm / 25.4) * dpi));
+  const hpx = Math.max(1, Math.round((hMm / 25.4) * dpi));
+  const canvas = document.createElement("canvas");
+  canvas.width = wpx;
+  canvas.height = hpx;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas non disponibile.");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, wpx, hpx);
+
+  const imgRatio = img.width / img.height;
+  const boxRatio = wpx / hpx;
+  let dw: number, dh: number, dx: number, dy: number;
+  if (imgRatio > boxRatio) {
+    // Wider than the box — full height, centered horizontally.
+    dh = hpx;
+    dw = hpx * imgRatio;
+    dx = (wpx - dw) / 2;
+    dy = 0;
+  } else {
+    // Taller than the box — full width, aligned to the top.
+    dw = wpx;
+    dh = wpx / imgRatio;
+    dx = 0;
+    dy = 0;
+  }
+  ctx.drawImage(img, dx, dy, dw, dh);
+  return canvas.toDataURL("image/jpeg", 0.92);
+}
+
+type Pdf = import("jspdf").jsPDF;
+type Rgb = [number, number, number];
+
+export type CompositTheme = "light" | "dark";
+
+interface Palette {
+  bg: Rgb;
+  text: Rgb;
+  textSoft: Rgb;
+  textFaint: Rgb;
+  line: Rgb;
+  logo: string;
+  photoBg: string;
+}
+
+const PALETTES: Record<CompositTheme, Palette> = {
+  light: {
+    bg: [255, 255, 255],
+    text: [20, 18, 16],
+    textSoft: [120, 115, 108],
+    textFaint: [150, 145, 138],
+    line: [210, 205, 198],
+    logo: "/logos/logo-liine-nero.webp",
+    photoBg: "#e9e6e1",
+  },
+  dark: {
+    bg: [15, 13, 11],
+    text: [244, 241, 235],
+    textSoft: [178, 172, 164],
+    textFaint: [120, 116, 110],
+    line: [70, 66, 60],
+    logo: "/logos/logo-liine-bianco.webp",
+    photoBg: "#141210",
+  },
+};
+
+// LIINE wordmark, cached per source (black on light, white on dark) as a PNG
+// data URL so jsPDF embeds it with transparency intact.
+const logoCache: Record<string, Promise<{ url: string; ratio: number }>> = {};
+
+function getLogo(src: string): Promise<{ url: string; ratio: number }> {
+  if (!logoCache[src]) {
+    logoCache[src] = (async () => {
+      const img = await loadImage(src);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas non disponibile.");
+      ctx.drawImage(img, 0, 0);
+      return { url: canvas.toDataURL("image/png"), ratio: img.width / img.height };
+    })();
+  }
+  return logoCache[src];
+}
+
+async function drawLogo(
+  pdf: Pdf,
+  cx: number,
+  centerY: number,
+  widthMm: number,
+  pal: Palette,
+) {
+  const { url, ratio } = await getLogo(pal.logo);
+  const w = widthMm;
+  const h = widthMm / ratio;
+  pdf.addImage(url, "PNG", cx - w / 2, centerY - h / 2, w, h);
+}
+
+function measureLines(data: CompositData): { it: string; en: string } {
+  const it: string[] = [];
+  const en: string[] = [];
+  for (const m of MEASURES) {
+    const v = (data[m.key] as string | undefined)?.trim();
+    if (!v) continue;
+    it.push(`${m.it} ${v}`);
+    en.push(`${m.en} ${v}`);
+  }
+  return { it: it.join("  ·  "), en: en.join("  ·  ") };
+}
+
+async function drawFront(pdf: Pdf, ox: number, data: CompositData, pal: Palette) {
+  const cx = ox + FACE_W / 2;
+  await drawLogo(pdf, cx, 15, LOGO_W, pal);
+
+  const px = ox + MARGIN;
+  const photo = await coverJpeg(data.frontImage, PHOTO_W, PHOTO_H, pal.photoBg);
+  pdf.addImage(photo, "JPEG", px, PHOTO_TOP, PHOTO_W, PHOTO_H);
+
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(15);
+  pdf.setTextColor(...pal.text);
+  pdf.setCharSpace(0.6);
+  pdf.text((data.name || "").toUpperCase(), cx, 198, {
+    align: "center",
+  });
+  pdf.setCharSpace(0);
+}
+
+async function drawBack(pdf: Pdf, ox: number, data: CompositData, pal: Palette) {
+  const cx = ox + FACE_W / 2;
+  const { it, en } = measureLines(data);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(...pal.text);
+  if (it) {
+    pdf.setFontSize(7);
+    pdf.text(it, cx, 13, { align: "center" });
+    pdf.setFontSize(6);
+    pdf.setTextColor(...pal.textSoft);
+    pdf.text(en, cx, 17.4, { align: "center" });
+    pdf.setTextColor(...pal.text);
+  }
+
+  const px = ox + MARGIN;
+  const photo = await coverJpeg(data.backImage, PHOTO_W, PHOTO_H, pal.photoBg);
+  pdf.addImage(photo, "JPEG", px, PHOTO_TOP, PHOTO_W, PHOTO_H);
+
+  await drawLogo(pdf, cx, 191, LOGO_W, pal);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(5.6);
+  pdf.setTextColor(...pal.textSoft);
+  pdf.text(COMPOSIT_CONTACT, cx, FACE_H - 8, { align: "center" });
+  pdf.setTextColor(...pal.text);
+}
+
+/**
+ * Builds and downloads the composit PDF for the given data, format and theme.
+ * Runs entirely in the browser — no upload, no server round-trip.
+ */
+export async function downloadComposit(
+  data: CompositData,
+  mode: CompositMode,
+  theme: CompositTheme = "light",
+): Promise<void> {
+  if (!data.frontImage || !data.backImage) {
+    throw new Error("Servono due foto: una per il fronte e una per il retro.");
+  }
+  const pal = PALETTES[theme];
+  const suffix = theme === "dark" ? "-scuro" : "";
+  const { jsPDF } = await import("jspdf");
+
+  if (mode === "digital") {
+    const pdf = new jsPDF({
+      unit: "mm",
+      format: [FACE_W * 2, FACE_H],
+      orientation: "landscape",
+    });
+    pdf.setFillColor(...pal.bg);
+    pdf.rect(0, 0, FACE_W * 2, FACE_H, "F");
+    await drawFront(pdf, 0, data, pal);
+    await drawBack(pdf, FACE_W, data, pal);
+    // Fold hairline between the two faces.
+    pdf.setDrawColor(...pal.line);
+    pdf.setLineWidth(0.1);
+    pdf.line(FACE_W, 6, FACE_W, FACE_H - 6);
+    pdf.save(`composit-${slugify(data.name)}-digitale${suffix}.pdf`);
+    return;
+  }
+
+  const pdf = new jsPDF({
+    unit: "mm",
+    format: [FACE_W, FACE_H],
+    orientation: "portrait",
+  });
+  pdf.setFillColor(...pal.bg);
+  pdf.rect(0, 0, FACE_W, FACE_H, "F");
+  await drawFront(pdf, 0, data, pal);
+  pdf.addPage([FACE_W, FACE_H], "portrait");
+  pdf.setFillColor(...pal.bg);
+  pdf.rect(0, 0, FACE_W, FACE_H, "F");
+  await drawBack(pdf, 0, data, pal);
+  pdf.save(`composit-${slugify(data.name)}-stampa${suffix}.pdf`);
+}

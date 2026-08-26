@@ -108,6 +108,24 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      <div className="mt-px border border-line border-t-0">
+        <Link
+          href="/riservato/composit"
+          className="group flex items-center justify-between gap-6 bg-paper p-8 transition-colors duration-300 hover:bg-paper-2 sm:p-10"
+        >
+          <div>
+            <span className="u-eyebrow">Composit</span>
+            <p className="mt-2 max-w-md text-[0.85rem] leading-relaxed text-ink-soft">
+              Genera i composit (fronte/retro) pronti per la stampa a partire da
+              due foto e dalle misure.
+            </p>
+          </div>
+          <span className="shrink-0 text-[0.5625rem] uppercase tracking-[0.24em] text-ink-faint transition-transform duration-500 group-hover:translate-x-1">
+            Apri →
+          </span>
+        </Link>
+      </div>
     </AdminShell>
   );
 }
