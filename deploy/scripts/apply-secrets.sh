@@ -9,6 +9,8 @@
 #                    so it needs no URL-encoding inside MONGODB_URI)
 #   ADMIN_PASSWORD   Password for the reserved area login
 #   SESSION_SECRET   Long random string signing the session token
+#   MINIO_ROOT_USER      MinIO root access key (also used as the app's S3_ACCESS_KEY)
+#   MINIO_ROOT_PASSWORD  MinIO root secret key (also used as the app's S3_SECRET_KEY)
 #
 # Optional:
 #   NAMESPACE        (default: liine)
@@ -27,6 +29,8 @@ MONGO_DB="${MONGO_DB:-liine}"
 : "${MONGO_PASSWORD:?MONGO_PASSWORD is required}"
 : "${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}"
 : "${SESSION_SECRET:?SESSION_SECRET is required}"
+: "${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}"
+: "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}"
 
 # The app reaches Mongo via the in-cluster headless Service `mongo`.
 MONGODB_URI="mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo.${NAMESPACE}.svc.cluster.local:27017/${MONGO_DB}?authSource=admin"
@@ -51,6 +55,10 @@ kubectl create secret generic liine-app \
   --from-literal=MONGODB_URI="$MONGODB_URI" \
   --from-literal=ADMIN_PASSWORD="$ADMIN_PASSWORD" \
   --from-literal=SESSION_SECRET="$SESSION_SECRET" \
+  --from-literal=MINIO_ROOT_USER="$MINIO_ROOT_USER" \
+  --from-literal=MINIO_ROOT_PASSWORD="$MINIO_ROOT_PASSWORD" \
+  --from-literal=S3_ACCESS_KEY="$MINIO_ROOT_USER" \
+  --from-literal=S3_SECRET_KEY="$MINIO_ROOT_PASSWORD" \
   --dry-run=client -o yaml | kubectl apply -f -
 
 echo "Secrets applied in namespace '$NAMESPACE'."

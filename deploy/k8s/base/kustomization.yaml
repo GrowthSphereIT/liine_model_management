@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - mongo.yaml
+  - minio.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

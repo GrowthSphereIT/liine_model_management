@@ -42,7 +42,9 @@ export interface CompositData {
   backImage: string;
 }
 
-const MEASURES: { key: keyof CompositData; it: string; en: string }[] = [
+type MeasureKey = "height" | "bust" | "waist" | "hips" | "shoes" | "hair" | "eyes";
+
+const MEASURES: { key: MeasureKey; it: string; en: string }[] = [
   { key: "height", it: "Altezza", en: "Height" },
   { key: "bust", it: "Seno", en: "Bust" },
   { key: "waist", it: "Vita", en: "Waist" },
@@ -51,6 +53,139 @@ const MEASURES: { key: keyof CompositData; it: string; en: string }[] = [
   { key: "hair", it: "Capelli", en: "Hair" },
   { key: "eyes", it: "Occhi", en: "Eyes" },
 ];
+
+/**
+ * Eye colours offered in the composit generator. Each is a stable `value`
+ * (what the select stores) plus its Italian and English labels. The generator
+ * stores `value`, but older model records hold a free-typed Italian label, so
+ * {@link translateColor} also matches on the label text.
+ */
+export const EYE_COLORS: { value: string; it: string; en: string }[] = [
+  { value: "marroni", it: "Marroni", en: "Brown" },
+  { value: "castani", it: "Castani", en: "Brown" },
+  { value: "nocciola", it: "Nocciola", en: "Hazel" },
+  { value: "verdi", it: "Verdi", en: "Green" },
+  { value: "azzurri", it: "Azzurri", en: "Blue" },
+  { value: "celesti", it: "Celesti", en: "Blue" },
+  { value: "grigi", it: "Grigi", en: "Gray" },
+  { value: "ambra", it: "Ambra", en: "Amber" },
+  { value: "neri", it: "Neri", en: "Black" },
+];
+
+// Common hair colours, for translating the free-text hair field to English.
+const HAIR_COLORS: { it: string; en: string }[] = [
+  { it: "biondi", en: "Blonde" },
+  { it: "biondo", en: "Blonde" },
+  { it: "castani", en: "Brown" },
+  { it: "castano", en: "Brown" },
+  { it: "castano chiaro", en: "Light brown" },
+  { it: "castano scuro", en: "Dark brown" },
+  { it: "neri", en: "Black" },
+  { it: "nero", en: "Black" },
+  { it: "mori", en: "Dark brown" },
+  { it: "rossi", en: "Red" },
+  { it: "rosso", en: "Red" },
+  { it: "grigi", en: "Gray" },
+  { it: "bianchi", en: "White" },
+];
+
+type Locale = "it" | "en";
+
+function parseMetric(v: string): number | null {
+  // Accept Italian decimals ("36,5") and stray unit text.
+  const n = parseFloat(v.replace(",", ".").replace(/[^0-9.]/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
+// 177 cm → 5'10" (height keeps the ' and " marks).
+function heightImperial(cm: number): string {
+  const total = Math.round(cm / 2.54);
+  return `${Math.floor(total / 12)}'${total % 12}"`;
+}
+
+// cm → inches to the nearest HALF, rendered "33" / "24½" (no inch mark, as on
+// the reference composit).
+function inchesHalf(cm: number): string {
+  const halves = Math.round((cm / 2.54) * 2) / 2;
+  const whole = Math.floor(halves);
+  return `${whole}${halves - whole ? "½" : ""}`;
+}
+
+// EU women's shoe → US half size, comma decimal ("7,5"), per the agency's
+// reference card (EU 39 → US 7,5). Adjust the offset here if their chart changes.
+function euShoeToUs(eu: number): string {
+  const us = Math.round((eu - 31.5) * 2) / 2;
+  return String(us).replace(".", ",");
+}
+
+function translateColor(
+  raw: string,
+  locale: Locale,
+  table: { it: string; en: string; value?: string }[],
+): string {
+  const key = raw.trim().toLowerCase();
+  const hit = table.find(
+    (c) => c.value === key || c.it.toLowerCase() === key || c.en.toLowerCase() === key,
+  );
+  if (!hit) return raw; // unknown / free text — leave as typed
+  return locale === "en" ? hit.en : hit.it;
+}
+
+// English hair/eyes read "Blonde Hair" / "Blue Eyes" (colour before the noun),
+// unlike the numeric rows which stay "Label value".
+const COLOR_KEYS: ReadonlySet<MeasureKey> = new Set(["hair", "eyes"]);
+
+function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
+  if (locale === "it") {
+    // Eyes come from a select key ("celesti") → its Italian label; everything
+    // else (measures, free-typed hair) is kept exactly as entered.
+    if (key === "eyes") return translateColor(raw, "it", EYE_COLORS);
+    return raw;
+  }
+  const cm = parseMetric(raw);
+  switch (key) {
+    case "height":
+      return cm ? heightImperial(cm) : raw;
+    case "bust":
+    case "waist":
+    case "hips":
+      return cm ? inchesHalf(cm) : raw;
+    case "shoes":
+      return cm ? euShoeToUs(cm) : raw;
+    case "eyes":
+      return translateColor(raw, "en", EYE_COLORS);
+    case "hair":
+      return translateColor(raw, "en", HAIR_COLORS);
+  }
+}
+
+function measureLine(data: Partial<CompositData>, locale: Locale): string {
+  const parts: string[] = [];
+  for (const m of MEASURES) {
+    const raw = data[m.key]?.trim();
+    if (!raw) continue;
+    const label = locale === "en" ? m.en : m.it;
+    const value = localizedValue(m.key, raw, locale);
+    parts.push(
+      locale === "en" && COLOR_KEYS.has(m.key)
+        ? `${value} ${label}` // "Blonde Hair", "Blue Eyes"
+        : `${label} ${value}`,
+    );
+  }
+  return parts.join("  ·  ");
+}
+
+/**
+ * Both measure lines for a composit — Italian (metric / EU) and English
+ * (imperial, US shoe size, translated colours), formatted like the agency's
+ * reference card. Shared by the PDF and the on-screen preview so they agree.
+ */
+export function compositMeasureLines(data: Partial<CompositData>): {
+  it: string;
+  en: string;
+} {
+  return { it: measureLine(data, "it"), en: measureLine(data, "en") };
+}
 
 function slugify(input: string): string {
   return (
@@ -182,18 +317,6 @@ async function drawLogo(
   pdf.addImage(url, "PNG", cx - w / 2, centerY - h / 2, w, h);
 }
 
-function measureLines(data: CompositData): { it: string; en: string } {
-  const it: string[] = [];
-  const en: string[] = [];
-  for (const m of MEASURES) {
-    const v = (data[m.key] as string | undefined)?.trim();
-    if (!v) continue;
-    it.push(`${m.it} ${v}`);
-    en.push(`${m.en} ${v}`);
-  }
-  return { it: it.join("  ·  "), en: en.join("  ·  ") };
-}
-
 async function drawFront(pdf: Pdf, ox: number, data: CompositData, pal: Palette) {
   const cx = ox + FACE_W / 2;
   await drawLogo(pdf, cx, 15, LOGO_W, pal);
@@ -214,7 +337,7 @@ async function drawFront(pdf: Pdf, ox: number, data: CompositData, pal: Palette)
 
 async function drawBack(pdf: Pdf, ox: number, data: CompositData, pal: Palette) {
   const cx = ox + FACE_W / 2;
-  const { it, en } = measureLines(data);
+  const { it, en } = compositMeasureLines(data);
 
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...pal.text);

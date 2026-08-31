@@ -36,6 +36,15 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+    # In-cluster MinIO (object storage)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: minio
+              app.kubernetes.io/component: storage
+      ports:
+        - protocol: TCP
+          port: 9000
     # External HTTPS (e.g. for any third-party API calls)
     - to:
         - ipBlock:
@@ -69,6 +78,39 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# MinIO: reachable only by the web pods, egress limited to DNS.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: liine-minio
+  namespace: liine
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: minio
+      app.kubernetes.io/component: storage
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: liine
+              app.kubernetes.io/component: web
+      ports:
+        - protocol: TCP
+          port: 9000
+        - protocol: TCP
+          port: 9001
   egress:
     # DNS
     - to:

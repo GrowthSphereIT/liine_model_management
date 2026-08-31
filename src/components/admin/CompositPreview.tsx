@@ -6,6 +6,8 @@
  * src/lib/composit.ts so what the operator sees matches the export.
  */
 
+import { compositMeasureLines } from "@/lib/composit";
+
 export interface CompositPreviewData {
   name: string;
   height?: string;
@@ -20,16 +22,6 @@ export interface CompositPreviewData {
 }
 
 export type CompositPreviewTheme = "light" | "dark";
-
-const MEASURES: { key: keyof CompositPreviewData; it: string }[] = [
-  { key: "height", it: "Altezza" },
-  { key: "bust", it: "Seno" },
-  { key: "waist", it: "Vita" },
-  { key: "hips", it: "Fianchi" },
-  { key: "shoes", it: "Scarpe" },
-  { key: "hair", it: "Capelli" },
-  { key: "eyes", it: "Occhi" },
-];
 
 function Logo({ theme }: { theme: CompositPreviewTheme }) {
   return (
@@ -65,10 +57,7 @@ export default function CompositPreview({
   data: CompositPreviewData;
   theme?: CompositPreviewTheme;
 }) {
-  const measures = MEASURES.map((m) => ({
-    label: m.it,
-    value: (data[m.key] as string | undefined)?.trim(),
-  })).filter((m) => m.value);
+  const { it: measuresIt, en: measuresEn } = compositMeasureLines(data);
 
   const dark = theme === "dark";
   const face = dark
@@ -102,13 +91,14 @@ export default function CompositPreview({
       <figure
         className={`flex aspect-[148/210] flex-col shadow-[0_20px_50px_-30px_rgba(27,22,18,0.6)] ring-1 ${face}`}
       >
-        <div
-          className={`flex h-[14.3%] shrink-0 items-center justify-center px-3 text-center text-[0.5rem] leading-tight ${soft}`}
-        >
-          {measures.length ? (
-            measures.map((m) => m.label + " " + m.value).join("  ·  ")
+        <div className="flex h-[14.3%] shrink-0 flex-col items-center justify-center gap-0.5 px-3 text-center leading-tight">
+          {measuresIt ? (
+            <>
+              <span className={`text-[0.5rem] ${soft}`}>{measuresIt}</span>
+              <span className={`text-[0.44rem] ${faint}`}>{measuresEn}</span>
+            </>
           ) : (
-            <span className={faint}>Nessuna misura</span>
+            <span className={`text-[0.5rem] ${faint}`}>Nessuna misura</span>
           )}
         </div>
         <div className="mx-3 min-h-0 flex-1 overflow-hidden">

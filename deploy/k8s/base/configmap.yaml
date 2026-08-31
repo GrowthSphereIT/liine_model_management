@@ -12,3 +12,7 @@ data:
   APP_URL: "https://liine.growthsphere.it"
   NEXT_PUBLIC_APP_URL: "https://liine.growthsphere.it"
   MONGODB_DB: "liine"
+  # Object storage (MinIO). Credentials live in the `liine-app` Secret.
+  S3_ENDPOINT: "http://minio.liine.svc.cluster.local:9000"
+  S3_BUCKET: "liine"
+  S3_REGION: "us-east-1"

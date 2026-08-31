@@ -66,6 +66,8 @@ export async function getDb(): Promise<Db> {
 export const COLLECTIONS = {
   models: "models",
   works: "works",
+  /** Saved composit (comp card) drafts, editable from the reserved area. */
+  composits: "composits",
   /** Open-casting applications (candidatura). */
   applications: "applications",
   /** Client / booking requests (richiesta). */

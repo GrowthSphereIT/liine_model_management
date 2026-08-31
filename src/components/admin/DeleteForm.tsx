@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteModelAction, deleteWorkAction } from "@/app/riservato/actions";
+import { deleteCompositAction } from "@/app/riservato/composit-actions";
 import { TrashIcon } from "./icons";
 
 /**
@@ -13,10 +14,15 @@ export default function DeleteForm({
   label,
 }: {
   id: string;
-  kind: "model" | "work";
+  kind: "model" | "work" | "composit";
   label: string;
 }) {
-  const action = kind === "model" ? deleteModelAction : deleteWorkAction;
+  const action =
+    kind === "model"
+      ? deleteModelAction
+      : kind === "work"
+        ? deleteWorkAction
+        : deleteCompositAction;
   return (
     <form
       action={action}
