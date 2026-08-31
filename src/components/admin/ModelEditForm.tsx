@@ -20,7 +20,7 @@ export default function ModelEditForm({ model }: { model: AdminModel }) {
       <ModelFields model={model} />
 
       <div className="border-t border-line pt-7">
-        <ImageGalleryEditor images={model.images} />
+        <ImageGalleryEditor images={model.images} kinds={model.kinds} />
       </div>
 
       {state.error ? (

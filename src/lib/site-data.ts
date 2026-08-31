@@ -34,6 +34,7 @@ export const FOOTER_NAV = [
     links: [
       { label: "Metodo", href: "/#metodo" },
       { label: "Contatti", href: "/richiesta" },
+      { label: "AI Act", href: "/ai-act" },
     ],
   },
   {

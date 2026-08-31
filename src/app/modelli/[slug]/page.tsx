@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import RevealShell from "@/components/RevealShell";
 import Lines from "@/components/Lines";
 import Reveal from "@/components/Reveal";
-import ImageReveal from "@/components/ImageReveal";
+import ModelGalleries from "@/components/ModelGalleries";
 import { getModelPage, getUploadedModel } from "@/lib/admin-data";
 
 // Models live in MongoDB and are managed from /riservato, so detail pages are
@@ -37,12 +37,6 @@ export async function generateMetadata({
   };
 }
 
-const GALLERY_WIDTH = [
-  "w-full",
-  "w-full sm:w-[70%] sm:ml-auto",
-  "w-full sm:w-[62%]",
-];
-
 export default async function ModelPage({
   params,
 }: {
@@ -55,8 +49,10 @@ export default async function ModelPage({
   const { model, prev, next, index, total } = page;
 
   const cover = model.portfolio[0];
-  const gallery = model.portfolio.slice(1);
-  const bookHref = "/#richiesta";
+  // The two public galleries; the hero cover is shown above, so drop it here.
+  const galleria = model.galleria.filter((u) => u !== cover);
+  const polaroid = model.polaroid.filter((u) => u !== cover);
+  const bookHref = `/richiesta?modello=${encodeURIComponent(model.name)}`;
 
   const neighbors = [
     { ...prev, role: "Precedente" as const },
@@ -122,6 +118,13 @@ export default async function ModelPage({
           </div>
         </section>
 
+        {/* ── Gallerie: selettore full-width + galleria attiva ──── */}
+        <ModelGalleries
+          modelName={model.name}
+          galleria={galleria}
+          polaroid={polaroid}
+        />
+
         {/* ── Scheda: truthful data strip ───────────────────────── */}
         <section className="border-b border-line px-5 py-20 sm:px-8 sm:py-28">
           <div className="mx-auto grid max-w-[1600px] gap-12 md:grid-cols-12 md:items-start">
@@ -181,47 +184,6 @@ export default async function ModelPage({
             ))}
           </div>
         </div>
-
-        {/* ── Portfolio ─────────────────────────────────────────── */}
-        {gallery.length > 0 && (
-          <section className="mx-auto max-w-[1200px] px-5 py-20 sm:px-8 sm:py-28">
-            <div className="mb-14 flex items-end justify-between border-b border-ink pb-5">
-              <Lines
-                as="h2"
-                lines={["Portfolio"]}
-                className="u-display text-[clamp(1.6rem,3.6vw,2.6rem)]"
-              />
-              <span className="text-[0.625rem] uppercase tracking-[0.24em] text-ink-soft">
-                {String(model.portfolio.length).padStart(2, "0")} stills
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-16 sm:gap-28">
-              {gallery.map((src, i) => (
-                <figure
-                  key={src}
-                  className={GALLERY_WIDTH[i % GALLERY_WIDTH.length]}
-                >
-                  <ImageReveal
-                    src={src}
-                    alt={`${model.name}, portfolio foto ${i + 2}`}
-                    className="aspect-[3/4] w-full bg-paper-3"
-                    sizes="(min-width: 640px) 70vw, 100vw"
-                    placeholder={false}
-                    label={`Foto ${String(i + 2).padStart(2, "0")}`}
-                  />
-                  <figcaption className="mt-3 flex items-baseline justify-between text-[0.625rem] uppercase tracking-[0.2em] text-ink-soft">
-                    <span>{model.name} · LIINE</span>
-                    <span className="tabular-nums">
-                      {String(i + 2).padStart(2, "0")} /{" "}
-                      {String(model.portfolio.length).padStart(2, "0")}
-                    </span>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* ── Booking panel ─────────────────────────────────────── */}
         <section className="bg-ink px-5 py-24 text-paper sm:px-8 sm:py-32">

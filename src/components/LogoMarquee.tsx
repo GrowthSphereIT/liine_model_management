@@ -28,7 +28,7 @@ export default function LogoMarquee() {
                 <span
                   role="img"
                   aria-label={b.name}
-                  className="block h-6 select-none bg-ink transition-colors duration-300 ease-out hover:bg-accent sm:h-7"
+                  className="block h-9 select-none bg-ink transition-colors duration-300 ease-out hover:bg-accent sm:h-11"
                   style={{
                     aspectRatio: b.ratio,
                     maskImage: `url(${b.src})`,

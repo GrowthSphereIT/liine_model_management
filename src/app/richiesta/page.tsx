@@ -26,7 +26,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RichiestaPage() {
+export default async function RichiestaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ modello?: string }>;
+}) {
+  const { modello } = await searchParams;
+  const preselected = modello?.trim() || undefined;
+
   return (
     <FormLayout
       eyebrow="Richiesta clienti"
@@ -54,7 +61,7 @@ export default function RichiestaPage() {
         </div>
       }
     >
-      <ClientRequestForm />
+      <ClientRequestForm model={preselected} />
     </FormLayout>
   );
 }

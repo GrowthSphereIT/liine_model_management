@@ -9,20 +9,78 @@ import { useEffect, useState } from "react";
  * large) data URLs never round-trip through the browser: only which images to
  * keep, which is the cover, and the newly added files are submitted.
  *
- * Emits three form fields:
+ * Emits:
  *  - hidden `remove`  — JSON array of removed existing indices
  *  - hidden `cover`   — "existing:<i>" | "new:<i>"
  *  - file  `images`   — the newly added files (multipart)
+ *
+ * When `kinds` is passed (models have two galleries — "Galleria" and
+ * "Polaroid"), each thumbnail also gets a gallery toggle and two more fields
+ * are emitted, aligned to the existing images / to the new files:
+ *  - hidden `kindsExisting` — JSON array of "galleria" | "polaroid"
+ *  - hidden `kindsNew`      — JSON array of "galleria" | "polaroid"
+ * Works don't pass `kinds`, so they behave exactly as before.
  */
 
 type Cover =
   | { kind: "existing"; index: number }
   | { kind: "new"; index: number };
 
-export default function ImageGalleryEditor({ images }: { images: string[] }) {
+type Kind = "galleria" | "polaroid";
+
+const KIND_LABEL: Record<Kind, string> = {
+  galleria: "Galleria",
+  polaroid: "Polaroid",
+};
+
+function GalleryToggle({
+  value,
+  onChange,
+}: {
+  value: Kind;
+  onChange: (k: Kind) => void;
+}) {
+  return (
+    <div className="mt-1 flex overflow-hidden rounded-sm border border-line">
+      {(["galleria", "polaroid"] as Kind[]).map((k) => (
+        <button
+          key={k}
+          type="button"
+          aria-pressed={value === k}
+          onClick={() => onChange(k)}
+          className={`flex-1 px-1 py-1 text-[0.5rem] uppercase tracking-[0.14em] transition-colors ${
+            value === k
+              ? "bg-ink text-paper"
+              : "bg-paper text-ink-faint hover:text-ink"
+          }`}
+        >
+          {KIND_LABEL[k]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function ImageGalleryEditor({
+  images,
+  kinds,
+}: {
+  images: string[];
+  /** When present, enables the Galleria/Polaroid tagging (models only). */
+  kinds?: Kind[];
+}) {
+  const galleries = kinds !== undefined;
+
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [newPreviews, setNewPreviews] = useState<string[]>([]);
   const [cover, setCover] = useState<Cover>({ kind: "existing", index: 0 });
+
+  // Gallery tags. Existing tags start from the stored value (default galleria);
+  // new files default to galleria until moved.
+  const [existingKinds, setExistingKinds] = useState<Kind[]>(() =>
+    images.map((_, i) => (kinds?.[i] === "polaroid" ? "polaroid" : "galleria")),
+  );
+  const [newKinds, setNewKinds] = useState<Kind[]>([]);
 
   useEffect(() => {
     return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -64,8 +122,22 @@ export default function ImageGalleryEditor({ images }: { images: string[] }) {
         name="cover"
         value={`${effectiveCover.kind}:${effectiveCover.index}`}
       />
+      {galleries ? (
+        <>
+          <input
+            type="hidden"
+            name="kindsExisting"
+            value={JSON.stringify(existingKinds)}
+          />
+          <input
+            type="hidden"
+            name="kindsNew"
+            value={JSON.stringify(newKinds)}
+          />
+        </>
+      ) : null}
 
-      {/* ── Existing images: pick cover / remove ─────────────────── */}
+      {/* ── Existing images: pick cover / remove / gallery ───────── */}
       <div>
         <div className="mb-4 flex items-baseline justify-between">
           <span className="field-label mb-0">Immagini</span>
@@ -97,6 +169,18 @@ export default function ImageGalleryEditor({ images }: { images: string[] }) {
                     </span>
                   ) : null}
                 </button>
+                {galleries && !isRemoved ? (
+                  <GalleryToggle
+                    value={existingKinds[i] ?? "galleria"}
+                    onChange={(k) =>
+                      setExistingKinds((prev) => {
+                        const next = [...prev];
+                        next[i] = k;
+                        return next;
+                      })
+                    }
+                  />
+                ) : null}
                 <button
                   type="button"
                   onClick={() => toggleRemove(i)}
@@ -133,6 +217,7 @@ export default function ImageGalleryEditor({ images }: { images: string[] }) {
                 prev.forEach((url) => URL.revokeObjectURL(url));
                 return files.map((f) => URL.createObjectURL(f));
               });
+              setNewKinds(files.map(() => "galleria"));
             }}
           />
         </label>
@@ -163,6 +248,18 @@ export default function ImageGalleryEditor({ images }: { images: string[] }) {
                       </span>
                     ) : null}
                   </button>
+                  {galleries ? (
+                    <GalleryToggle
+                      value={newKinds[i] ?? "galleria"}
+                      onChange={(k) =>
+                        setNewKinds((prev) => {
+                          const next = [...prev];
+                          next[i] = k;
+                          return next;
+                        })
+                      }
+                    />
+                  ) : null}
                 </li>
               );
             })}

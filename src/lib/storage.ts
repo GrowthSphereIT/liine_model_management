@@ -20,6 +20,23 @@ import { randomUUID } from "node:crypto";
 
 const BUCKET = process.env.S3_BUCKET || "liine";
 
+// Fail fast when the object store accepts the socket but never answers (a
+// stalled or half-open MinIO/S3 endpoint). Without this the minio client has
+// no timeout and a save would hang forever ("Salva" stuck), unlike the Mongo
+// client which already fails fast. Mirrors that behaviour for storage.
+const OP_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(op: Promise<T>, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const guard = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`Object storage non raggiungibile (timeout ${label}).`)),
+      OP_TIMEOUT_MS,
+    );
+  });
+  return Promise.race([op, guard]).finally(() => clearTimeout(timer));
+}
+
 type GlobalCache = { client?: Client; ensured?: Promise<void> };
 const globalCache = globalThis as unknown as { __liineStorage?: GlobalCache };
 const cache: GlobalCache = (globalCache.__liineStorage ??= {});
@@ -52,11 +69,21 @@ function getClient(): Client {
 /** Creates the bucket on first use; cached so it only runs once per process. */
 function ensureBucket(client: Client): Promise<void> {
   cache.ensured ??= (async () => {
-    const exists = await client.bucketExists(BUCKET).catch(() => false);
+    const exists = await withTimeout(
+      client.bucketExists(BUCKET),
+      "bucketExists",
+    ).catch(() => false);
     if (!exists) {
-      await client.makeBucket(BUCKET, process.env.S3_REGION || "us-east-1");
+      await withTimeout(
+        client.makeBucket(BUCKET, process.env.S3_REGION || "us-east-1"),
+        "makeBucket",
+      );
     }
-  })();
+    // Don't leave a stalled attempt cached: a later save should retry cleanly.
+  })().catch((err) => {
+    cache.ensured = undefined;
+    throw err;
+  });
   return cache.ensured;
 }
 
@@ -81,9 +108,12 @@ export async function putImage(
   await ensureBucket(client);
   const ext = EXT[contentType] ?? "bin";
   const key = `${prefix}/${randomUUID()}.${ext}`;
-  await client.putObject(BUCKET, key, buffer, buffer.length, {
-    "Content-Type": contentType,
-  });
+  await withTimeout(
+    client.putObject(BUCKET, key, buffer, buffer.length, {
+      "Content-Type": contentType,
+    }),
+    "putObject",
+  );
   return key;
 }
 
@@ -96,8 +126,8 @@ export interface StoredObject {
 /** Fetches an object for streaming back to the browser. */
 export async function getObject(key: string): Promise<StoredObject> {
   const client = getClient();
-  const stat = await client.statObject(BUCKET, key);
-  const stream = await client.getObject(BUCKET, key);
+  const stat = await withTimeout(client.statObject(BUCKET, key), "statObject");
+  const stream = await withTimeout(client.getObject(BUCKET, key), "getObject");
   return {
     stream,
     contentType: stat.metaData?.["content-type"] || "application/octet-stream",

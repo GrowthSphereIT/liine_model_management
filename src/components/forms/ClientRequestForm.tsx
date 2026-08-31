@@ -18,11 +18,18 @@ import {
  * Client / booking request — the "scheda madre" request form. Submissions are
  * persisted to MongoDB and managed from the reserved area (/riservato/clienti).
  */
-export default function ClientRequestForm() {
+export default function ClientRequestForm({ model }: { model?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(
     submitRequestAction,
     {},
   );
+
+  // When arriving from a model profile ("Richiedi …"), seed the message with
+  // that model so the request lands pre-attributed and the sender can add the
+  // brief around it.
+  const seededRequest = model
+    ? `Vorrei richiedere il modello ${model} per un progetto.\n\n`
+    : undefined;
 
   if (state.ok) {
     return (
@@ -35,6 +42,14 @@ export default function ClientRequestForm() {
 
   return (
     <form action={action} className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
+      {model ? (
+        <p className="sm:col-span-2 border-l-2 border-accent bg-paper-2 px-4 py-3 text-[0.85rem] text-ink-soft">
+          Richiesta per il modello{" "}
+          <span className="font-medium text-ink">{model}</span>. Puoi modificare
+          il messaggio qui sotto.
+        </p>
+      ) : null}
+
       <Field label="Nome" htmlFor="cr-nome">
         <TextInput id="cr-nome" name="nome" autoComplete="given-name" required />
       </Field>
@@ -77,6 +92,7 @@ export default function ClientRequestForm() {
           id="cr-msg"
           name="richiesta"
           rows={4}
+          defaultValue={seededRequest}
           placeholder="Descrivi il progetto: capo, tipo di ingaggio, date, sede."
           required
         />

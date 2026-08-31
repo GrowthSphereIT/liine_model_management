@@ -91,6 +91,23 @@ export const WORK_DEFAULTS: WorkInfo = {
 
 // ── Document shapes ──────────────────────────────────────────────────────
 
+/** Which of a model's two galleries an image belongs to. */
+export type ImageKind = "galleria" | "polaroid";
+
+/**
+ * Per-image gallery tag, aligned index-for-index with `images`. Missing or
+ * legacy entries fall back to the main "galleria", so existing models keep all
+ * their photos there until the operator moves some to "polaroid".
+ */
+function normalizeKinds(
+  kinds: ImageKind[] | undefined,
+  len: number,
+): ImageKind[] {
+  return Array.from({ length: len }, (_, i) =>
+    kinds?.[i] === "polaroid" ? "polaroid" : "galleria",
+  );
+}
+
 interface ModelDoc extends Document, Partial<ModelInfo> {
   _id?: ObjectId;
   slug: string;
@@ -98,6 +115,8 @@ interface ModelDoc extends Document, Partial<ModelInfo> {
   division: AdminDivision;
   /** Data URLs. Cover is images[0]. */
   images: string[];
+  /** Gallery tag per image, aligned to `images`. Absent ⇒ all "galleria". */
+  kinds?: ImageKind[];
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -124,6 +143,8 @@ export interface AdminModel extends ModelInfo {
   division: AdminDivision;
   divisionLabel: string;
   images: string[];
+  /** Gallery tag per image, aligned to `images`. */
+  kinds: ImageKind[];
   cover: string;
   createdAt: string;
 }
@@ -145,6 +166,10 @@ export interface UploadedModel extends ModelCard, ModelInfo {
   division: AdminDivision;
   divisionLabel: string;
   uploaded: true;
+  /** Main gallery stills (kind "galleria"), in order. Cover is `img`. */
+  galleria: string[];
+  /** Polaroid gallery stills (kind "polaroid"), in order. */
+  polaroid: string[];
 }
 
 export interface UploadedWork extends WorkItem, WorkInfo {
@@ -205,6 +230,7 @@ function serializeModel(doc: ModelDoc): AdminModel {
     division: doc.division,
     divisionLabel: DIVISION_LABELS[doc.division] ?? doc.division,
     images: doc.images,
+    kinds: normalizeKinds(doc.kinds, doc.images.length),
     cover: doc.images[0] ?? "",
     createdAt:
       doc.createdAt instanceof Date
@@ -263,6 +289,7 @@ export async function createModel(input: {
   name: string;
   division: AdminDivision;
   images: string[];
+  kinds?: ImageKind[];
 } & Partial<ModelInfo>): Promise<void> {
   const col = await models();
   await col.insertOne({
@@ -270,6 +297,7 @@ export async function createModel(input: {
     name: input.name.trim(),
     division: input.division,
     images: input.images,
+    kinds: normalizeKinds(input.kinds, input.images.length),
     createdAt: new Date(),
     ...modelInfo(input),
   });
@@ -289,6 +317,7 @@ export async function updateModel(
     name: string;
     division: AdminDivision;
     images: string[];
+    kinds?: ImageKind[];
   } & Partial<ModelInfo>,
 ): Promise<void> {
   if (!ObjectId.isValid(id)) return;
@@ -300,6 +329,7 @@ export async function updateModel(
         name: input.name.trim(),
         division: input.division,
         images: input.images,
+        kinds: normalizeKinds(input.kinds, input.images.length),
         updatedAt: new Date(),
         ...modelInfo(input),
       },
@@ -428,11 +458,14 @@ export async function getPublicWorks(): Promise<WorkItem[]> {
 }
 
 function toUploadedModel(doc: ModelDoc): UploadedModel {
+  const kinds = normalizeKinds(doc.kinds, doc.images.length);
   return {
     ...toModelCard(doc),
     division: doc.division,
     divisionLabel: DIVISION_LABELS[doc.division] ?? doc.division,
     uploaded: true,
+    galleria: doc.images.filter((_, i) => kinds[i] !== "polaroid"),
+    polaroid: doc.images.filter((_, i) => kinds[i] === "polaroid"),
     ...modelInfo(doc),
   };
 }

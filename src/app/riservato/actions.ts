@@ -13,6 +13,7 @@ import {
   updateModel,
   updateWork,
   type AdminDivision,
+  type ImageKind,
   type ModelInfo,
   type WorkInfo,
 } from "@/lib/admin-data";
@@ -117,31 +118,54 @@ export async function updateModelAction(
   if (!existing) return { error: "Modello non trovato." };
 
   const removed = parseIndexSet(formData.get("remove"));
-  const kept = existing.images.filter((_, i) => !removed.has(i));
   const cover = String(formData.get("cover") ?? ""); // "existing:<i>" | "new:<i>"
+
+  // Per-image gallery tags, aligned to the existing images / to the new files.
+  const kindsExisting = parseKinds(formData.get("kindsExisting"));
+  const kindsNew = parseKinds(formData.get("kindsNew"));
 
   try {
     const added = await filesToDataUrls(formData.getAll("images") as File[]);
 
-    let images: string[];
+    // Carry each image's gallery kind alongside its URL through the same
+    // keep / add / cover-to-front shuffle, then split back out at the end so
+    // `images` and `kinds` stay index-aligned.
+    const keptPairs = existing.images
+      .map((url, i) => ({ url, kind: kindsExisting[i] ?? existing.kinds[i] ?? "galleria" }))
+      .filter((_, i) => !removed.has(i));
+    const addedPairs = added.map((url, i) => ({
+      url,
+      kind: kindsNew[i] ?? "galleria",
+    }));
+
+    let pairs: { url: string; kind: ImageKind }[];
     const [kind, rawIdx] = cover.split(":");
     const idx = Number(rawIdx);
-    if (kind === "new" && added[idx]) {
-      images = [added[idx], ...kept, ...added.filter((_, k) => k !== idx)];
+    if (kind === "new" && addedPairs[idx]) {
+      pairs = [
+        addedPairs[idx],
+        ...keptPairs,
+        ...addedPairs.filter((_, k) => k !== idx),
+      ];
     } else if (kind === "existing" && existing.images[idx] && !removed.has(idx)) {
       const coverUrl = existing.images[idx];
-      images = [coverUrl, ...kept.filter((u) => u !== coverUrl), ...added];
+      pairs = [
+        { url: coverUrl, kind: kindsExisting[idx] ?? existing.kinds[idx] ?? "galleria" },
+        ...keptPairs.filter((p) => p.url !== coverUrl),
+        ...addedPairs,
+      ];
     } else {
-      images = [...kept, ...added];
+      pairs = [...keptPairs, ...addedPairs];
     }
 
-    if (images.length === 0) {
+    if (pairs.length === 0) {
       return { error: "Il modello deve avere almeno un'immagine." };
     }
     await updateModel(id, {
       name,
       division,
-      images,
+      images: pairs.map((p) => p.url),
+      kinds: pairs.map((p) => p.kind),
       ...readModelInfo(formData),
     });
   } catch (err) {
@@ -155,6 +179,17 @@ export async function updateModelAction(
   revalidatePath("/");
   revalidatePath(`/modelli/${existing.slug}`);
   redirect("/riservato/modelli");
+}
+
+/** Parses a JSON array of gallery kinds (from a hidden form field). */
+function parseKinds(value: FormDataEntryValue | null): ImageKind[] {
+  try {
+    const parsed = JSON.parse(String(value ?? "[]"));
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((k) => (k === "polaroid" ? "polaroid" : "galleria"));
+  } catch {
+    return [];
+  }
 }
 
 /** Parses a JSON array of integer indices (from a hidden form field). */
