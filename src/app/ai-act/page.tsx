@@ -2,46 +2,31 @@ import type { Metadata } from "next";
 import FormLayout from "@/components/forms/FormLayout";
 
 export const metadata: Metadata = {
-  title: "AI Act: la nostra posizione sull'intelligenza artificiale",
+  title: "Trasparenza IA: informativa ai sensi dell'AI Act",
   description:
-    "Cosa prevede il Regolamento europeo sull'intelligenza artificiale (EU AI Act, Reg. UE 2024/1689), le sue scadenze e cosa significa per la moda, l'immagine dei modelli e i contenuti generati dall'IA.",
+    "Informativa di trasparenza sull'uso dell'intelligenza artificiale su questo sito, ai sensi dell'art. 50 del Regolamento europeo sull'IA (AI Act, Reg. UE 2024/1689).",
   keywords: [
-    "AI Act",
-    "Regolamento UE 2024/1689",
-    "intelligenza artificiale moda",
-    "deepfake",
-    "immagini generate dall'IA",
     "trasparenza IA",
-    "modelli sintetici",
+    "AI Act",
+    "art. 50",
+    "Regolamento UE 2024/1689",
+    "immagini generate dall'IA",
+    "contenuti sintetici",
     "LIINE",
   ],
   alternates: { canonical: "/ai-act" },
+  robots: { index: true, follow: true },
   openGraph: {
     type: "article",
     url: "/ai-act",
-    title: "AI Act · LIINE Model Management",
+    title: "Trasparenza IA · LIINE Model Management",
     description:
-      "Il Regolamento europeo sull'IA e cosa significa per la moda e per l'immagine dei modelli.",
+      "Come e dove usiamo l'intelligenza artificiale su questo sito, ai sensi dell'AI Act.",
   },
 };
 
-// Key milestones of the EU AI Act (Reg. (EU) 2024/1689), for the aside rail.
-const TIMELINE: { date: string; label: string }[] = [
-  { date: "Ago 2024", label: "Entrata in vigore del Regolamento." },
-  { date: "Feb 2025", label: "Divieto dei sistemi a rischio inaccettabile." },
-  {
-    date: "Ago 2025",
-    label: "Obblighi per i modelli di IA per finalità generali (GPAI).",
-  },
-  {
-    date: "Ago 2026",
-    label: "Piena applicazione, inclusi gli obblighi di trasparenza (art. 50).",
-  },
-  {
-    date: "2026–2028",
-    label: "Entrata in vigore graduale degli obblighi sui sistemi ad alto rischio.",
-  },
-];
+const CONTACT_EMAIL = "info@liinemodelmanagement.com";
+const UPDATED = "31 agosto 2026";
 
 function Section({
   title,
@@ -65,105 +50,104 @@ function Section({
 export default function AiActPage() {
   return (
     <FormLayout
-      eyebrow="Normativa"
-      titleLines={["EU AI Act", "e moda."]}
-      intro="Il Regolamento europeo sull'intelligenza artificiale (Reg. UE 2024/1689) fissa regole comuni per un'IA affidabile. Ecco cosa prevede e cosa comporta per l'immagine dei modelli e per i contenuti generati dall'IA."
+      eyebrow="Trasparenza IA"
+      titleLines={["Trasparenza", "sull'IA."]}
+      intro="Informativa resa ai sensi dell'articolo 50 del Regolamento europeo sull'intelligenza artificiale (AI Act, Reg. UE 2024/1689). Qui dichiariamo come e dove usiamo l'intelligenza artificiale su questo sito."
       backHref="/"
       backLabel="Home"
       aside={
         <div className="flex flex-col gap-6 text-[0.9rem] leading-relaxed text-ink-soft">
           <div className="border-t border-line pt-5">
-            <p className="u-eyebrow mb-4">Scadenze principali</p>
-            <ul className="flex flex-col gap-4">
-              {TIMELINE.map((t) => (
-                <li key={t.date} className="flex flex-col gap-1">
-                  <span className="text-[0.625rem] uppercase tracking-[0.24em] text-accent">
-                    {t.date}
-                  </span>
-                  <span className="text-[0.9rem] text-ink">{t.label}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="u-eyebrow mb-2">Riferimento</p>
+            <p>
+              Regolamento (UE) 2024/1689 — «AI Act», art. 50 (obblighi di
+              trasparenza).
+            </p>
           </div>
           <div className="border-t border-line pt-5">
-            <p className="u-eyebrow mb-2">Sanzioni</p>
+            <p className="u-eyebrow mb-2">Contatto</p>
             <p>
-              Fino a 35 milioni di euro o il 7% del fatturato mondiale annuo per
-              le violazioni più gravi.
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              >
+                {CONTACT_EMAIL}
+              </a>
             </p>
+          </div>
+          <div className="border-t border-line pt-5">
+            <p className="u-eyebrow mb-2">Ultimo aggiornamento</p>
+            <p>{UPDATED}</p>
           </div>
         </div>
       }
     >
       <div className="flex flex-col gap-10">
-        <Section title="Che cos'è l'AI Act">
+        <Section title="Immagini generate con l'IA">
           <p>
-            L&apos;AI Act è il primo quadro giuridico organico al mondo
-            sull&apos;intelligenza artificiale. È entrato in vigore il 1º agosto
-            2024 e si applica in modo graduale nei mesi e anni successivi. Regola
-            chi sviluppa e chi utilizza sistemi di IA nel mercato europeo, con un
-            approccio basato sul rischio: più alto è il rischio per le persone e
-            per i diritti fondamentali, più stringenti sono gli obblighi.
+            Alcune immagini editoriali e di atmosfera presenti su questo sito —
+            tra cui la fotografia di copertina della home page nella versione
+            desktop — sono <span className="font-medium text-ink">generate o
+            modificate con strumenti di intelligenza artificiale</span>.
+          </p>
+          <p>
+            Le segnaliamo qui in modo chiaro, in conformità con l&apos;obbligo di
+            trasparenza sui contenuti sintetici previsto dall&apos;art. 50
+            dell&apos;AI Act. Non raffigurano persone reali né eventi reali: sono
+            visual creati per finalità estetiche e di comunicazione.
           </p>
         </Section>
 
-        <Section title="Le quattro classi di rischio">
+        <Section title="Le foto dei modelli sono autentiche">
           <p>
-            <span className="font-medium text-ink">Rischio inaccettabile.</span>{" "}
-            Pratiche vietate, come il social scoring o la manipolazione dei
-            comportamenti che può causare danni.
+            Le fotografie dei modelli nei book e nelle gallerie sono{" "}
+            <span className="font-medium text-ink">immagini reali di persone
+            reali</span>, pubblicate con il loro consenso. Non sono generate
+            dall&apos;IA.
           </p>
           <p>
-            <span className="font-medium text-ink">Alto rischio.</span> Sistemi
-            ammessi ma soggetti a requisiti rigorosi: gestione del rischio,
-            qualità dei dati, documentazione, sorveglianza umana.
-          </p>
-          <p>
-            <span className="font-medium text-ink">Rischio limitato.</span>{" "}
-            Obblighi di trasparenza: le persone devono sapere quando interagiscono
-            con un&apos;IA o quando un contenuto è generato o manipolato
-            artificialmente.
-          </p>
-          <p>
-            <span className="font-medium text-ink">Rischio minimo.</span> La
-            maggior parte delle applicazioni, senza obblighi specifici.
+            Non creiamo volti o corpi sintetici che imitino una persona reale
+            senza il suo accordo esplicito, e non alteriamo l&apos;identità di un
+            modello con l&apos;IA. L&apos;uso dell&apos;immagine di ciascuna
+            persona resta soggetto al suo consenso e alle tutele del GDPR e del
+            diritto all&apos;immagine.
           </p>
         </Section>
 
-        <Section title="Cosa cambia per la moda e per i modelli">
+        <Section title="Nessun uso ingannevole">
           <p>
-            Il punto più rilevante per un&apos;agenzia di modelli è la
-            trasparenza sui contenuti sintetici (art. 50). Immagini, video o
-            &laquo;modelli&raquo; interamente generati dall&apos;IA, così come i
-            volti e i corpi alterati in modo artificiale (i cosiddetti deepfake),
-            devono essere identificabili come tali: etichettati in modo chiaro e,
-            dove tecnicamente possibile, marcati in formato leggibile dalle
-            macchine.
-          </p>
-          <p>
-            Questo si aggiunge, senza sostituirle, alle tutele già previste dal
-            GDPR e dal diritto all&apos;immagine: l&apos;uso del volto, del corpo
-            e della likeness di una persona richiede un consenso informato e
-            circoscritto, tanto più quando entra in gioco l&apos;IA generativa.
+            Non impieghiamo l&apos;intelligenza artificiale per far apparire come
+            autentici contenuti che non lo sono, né per manipolare in modo
+            ingannevole immagini di persone. Ogni contenuto sintetico ha una
+            finalità dichiarata e riconoscibile.
           </p>
         </Section>
 
-        <Section title="La posizione di LIINE">
+        <Section title="Interazioni automatizzate">
           <p>
-            Il nostro lavoro parte dalla persona: dal capo e da come cade sul
-            corpo reale, non da un&apos;immagine sintetica. Consideriamo l&apos;IA
-            uno strumento, mai un sostituto del modello e del suo consenso.
+            Questo sito non utilizza chatbot o assistenti conversazionali basati
+            su IA che interagiscono con te. Se in futuro introdurremo strumenti
+            di questo tipo, saranno chiaramente identificati come sistemi di
+            intelligenza artificiale, come richiesto dall&apos;AI Act.
           </p>
+        </Section>
+
+        <Section title="Contatti e diritti">
           <p>
-            Per questo adottiamo alcuni principi: trasparenza su qualsiasi
-            contenuto generato o alterato dall&apos;IA; consenso esplicito dei
-            modelli per ogni uso della loro immagine; nessuna creazione di volti o
-            corpi sintetici che imitino una persona senza il suo accordo.
+            Per domande sull&apos;uso dell&apos;IA su questo sito, per segnalare
+            un contenuto o per esercitare i tuoi diritti, scrivici a{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+            >
+              {CONTACT_EMAIL}
+            </a>
+            .
           </p>
           <p className="text-[0.85rem] text-ink-faint">
-            Questa pagina ha finalità informative e non costituisce consulenza
-            legale. Per il testo integrale si rimanda al Regolamento (UE)
-            2024/1689.
+            Questa informativa può essere aggiornata quando cambia il modo in cui
+            usiamo l&apos;IA. Riferimento normativo: Regolamento (UE) 2024/1689.
+            Ultimo aggiornamento: {UPDATED}.
           </p>
         </Section>
       </div>
