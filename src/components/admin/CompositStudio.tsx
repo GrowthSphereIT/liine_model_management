@@ -5,6 +5,7 @@ import CompositPreview from "./CompositPreview";
 import {
   downloadComposit,
   EYE_COLORS,
+  HAIR_COLORS,
   type CompositMode,
   type CompositTheme,
 } from "@/lib/composit";
@@ -16,14 +17,13 @@ import {
 } from "@/app/riservato/composit-actions";
 
 // Text fields entered in metric (cm) / EU sizes; the English line on the card
-// is converted automatically. Eyes are a separate select (see below).
+// is converted automatically. Hair and eyes are separate selects (see below).
 const MEASURE_FIELDS: { key: MeasureKey; label: string; ph: string }[] = [
   { key: "height", label: "Altezza", ph: "178" },
   { key: "bust", label: "Seno", ph: "81" },
   { key: "waist", label: "Vita", ph: "61" },
   { key: "hips", label: "Fianchi", ph: "89" },
   { key: "shoes", label: "Scarpe", ph: "36,5" },
-  { key: "hair", label: "Capelli", ph: "Biondi" },
 ];
 
 type MeasureKey = "height" | "bust" | "waist" | "hips" | "shoes" | "hair" | "eyes";
@@ -218,6 +218,26 @@ export default function CompositStudio({
                 />
               </div>
             ))}
+            <div className="field">
+              <label htmlFor="composit-hair" className="field-label">
+                Capelli
+              </label>
+              <select
+                id="composit-hair"
+                value={measures.hair}
+                onChange={(e) =>
+                  setMeasures((m) => ({ ...m, hair: e.target.value }))
+                }
+                className="field-input"
+              >
+                <option value="">—</option>
+                {HAIR_COLORS.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.it}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="field">
               <label htmlFor="composit-eyes" className="field-label">
                 Occhi

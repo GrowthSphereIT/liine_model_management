@@ -38,6 +38,21 @@ function Logo({ theme }: { theme: CompositPreviewTheme }) {
   );
 }
 
+/**
+ * Keep each measure item whole when the line wraps in the (narrow) preview
+ * card: the spaces inside an item become non-breaking, so a wrap can only fall
+ * between items — at the dot separators. The dot is glued to the item on its
+ * left, so a bumped item starts the new line cleanly ("… Capelli Biondi ·" /
+ * "Occhi Nocciola"), never "Occhi" / "Nocciola".
+ */
+function noBreakItems(line: string): string {
+  return line
+    .split("\u00B7")
+    .map((seg) => seg.trim().replace(/\s+/g, "\u00A0")) // item spaces -> non-breaking
+    .filter(Boolean)
+    .join("\u00A0\u00B7 "); // dot glued left; trailing space is the only break point
+}
+
 function Photo({ src, alt }: { src?: string; alt: string }) {
   if (!src) {
     return (
@@ -94,8 +109,12 @@ export default function CompositPreview({
         <div className="flex h-[14.3%] shrink-0 flex-col items-center justify-center gap-0.5 px-3 text-center leading-tight">
           {measuresIt ? (
             <>
-              <span className={`text-[0.5rem] ${soft}`}>{measuresIt}</span>
-              <span className={`text-[0.44rem] ${faint}`}>{measuresEn}</span>
+              <span className={`text-[0.5rem] ${soft}`}>
+                {noBreakItems(measuresIt)}
+              </span>
+              <span className={`text-[0.44rem] ${faint}`}>
+                {noBreakItems(measuresEn)}
+              </span>
             </>
           ) : (
             <span className={`text-[0.5rem] ${faint}`}>Nessuna misura</span>

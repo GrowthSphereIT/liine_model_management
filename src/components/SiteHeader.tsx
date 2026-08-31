@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { DIVISIONS, NAV_LINKS, MOBILE_NAV } from "@/lib/site-data";
+import Wordmark from "@/components/Wordmark";
 
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -103,9 +104,7 @@ export default function SiteHeader() {
             className="group flex items-baseline gap-2"
             aria-label="LIINE, home"
           >
-            <span className="u-display text-[1.4rem] leading-none tracking-[-0.04em]">
-              LIINE
-            </span>
+            <Wordmark className="h-[0.95rem] w-auto" />
           </Link>
 
           {/* Desktop nav */}
@@ -285,17 +284,15 @@ export default function SiteHeader() {
           transition: "clip-path 0.72s var(--ease-out-quint)",
         }}
       >
-        <span
-          aria-hidden
-          className="u-display pointer-events-none absolute -bottom-[0.15em] left-[-0.04em] select-none text-[38vw] leading-[0.7] text-paper/[0.05]"
+        <Wordmark
+          ariaHidden
+          className="pointer-events-none absolute bottom-[-1vw] left-[-1vw] w-[112vw] select-none text-paper/[0.05]"
           style={{
             transform: open ? "translateY(0)" : "translateY(8%)",
             transition: "transform 1.1s var(--ease-out-quint)",
             transitionDelay: open ? "80ms" : "0ms",
           }}
-        >
-          LIINE
-        </span>
+        />
 
         <div className="relative flex h-full flex-col px-6 pb-9 pt-[calc(var(--header-h)+1.25rem)]">
           <span

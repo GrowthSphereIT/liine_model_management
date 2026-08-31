@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import { SiInstagram, SiTiktok, SiPinterest } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa6";
 import { FOOTER_NAV, SOCIALS, LEGAL } from "@/lib/site-data";
+import Wordmark from "@/components/Wordmark";
 
 const SOCIAL_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   instagram: SiInstagram,
@@ -108,12 +109,9 @@ export default function SiteFooter() {
             aria-label="LIINE, home"
             className="block"
           >
-            <span
-              className="u-display block leading-[0.78] tracking-[-0.05em] text-ink transition-colors duration-500 hover:text-accent"
-              style={{ fontSize: "clamp(4rem, 15vw, 13rem)" }}
-            >
-              LIINE
-            </span>
+            <Wordmark
+              className="block w-[clamp(11.5rem,44vw,38rem)] text-ink transition-colors duration-500 hover:text-accent"
+            />
           </Link>
         </div>
 

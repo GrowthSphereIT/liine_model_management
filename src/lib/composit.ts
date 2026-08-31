@@ -72,22 +72,45 @@ export const EYE_COLORS: { value: string; it: string; en: string }[] = [
   { value: "neri", it: "Neri", en: "Black" },
 ];
 
-// Common hair colours, for translating the free-text hair field to English.
-const HAIR_COLORS: { it: string; en: string }[] = [
-  { it: "biondi", en: "Blonde" },
+/**
+ * Hair colours offered in the composit generator — same shape as
+ * {@link EYE_COLORS}: a stable `value` plus Italian and English labels. Shown
+ * in a select; the generator stores `value`, and {@link translateColor} also
+ * matches on the labels so older, free-typed records keep translating.
+ */
+export const HAIR_COLORS: { value: string; it: string; en: string }[] = [
+  { value: "biondi", it: "Biondi", en: "Blonde" },
+  { value: "biondo-chiaro", it: "Biondo chiaro", en: "Light blonde" },
+  { value: "biondo-scuro", it: "Biondo scuro", en: "Dark blonde" },
+  { value: "castano-chiaro", it: "Castano chiaro", en: "Light brown" },
+  { value: "castani", it: "Castani", en: "Brown" },
+  { value: "castano-scuro", it: "Castano scuro", en: "Dark brown" },
+  { value: "ramati", it: "Ramati", en: "Auburn" },
+  { value: "rossi", it: "Rossi", en: "Red" },
+  { value: "neri", it: "Neri", en: "Black" },
+  { value: "grigi", it: "Grigi", en: "Gray" },
+  { value: "brizzolati", it: "Brizzolati", en: "Salt & pepper" },
+  { value: "bianchi", it: "Bianchi", en: "White" },
+  { value: "platino", it: "Platino", en: "Platinum" },
+];
+
+// Legacy free-typed hair labels (older records used singular masculine forms
+// and "mori"). Kept for translation only — not offered in the select.
+const HAIR_COLOR_ALIASES: { it: string; en: string }[] = [
   { it: "biondo", en: "Blonde" },
-  { it: "castani", en: "Brown" },
   { it: "castano", en: "Brown" },
   { it: "castano chiaro", en: "Light brown" },
   { it: "castano scuro", en: "Dark brown" },
-  { it: "neri", en: "Black" },
   { it: "nero", en: "Black" },
+  { it: "moro", en: "Dark brown" },
   { it: "mori", en: "Dark brown" },
-  { it: "rossi", en: "Red" },
   { it: "rosso", en: "Red" },
-  { it: "grigi", en: "Gray" },
-  { it: "bianchi", en: "White" },
+  { it: "rame", en: "Auburn" },
+  { it: "ramato", en: "Auburn" },
 ];
+
+// Full lookup for hair (select values + labels + legacy aliases).
+const HAIR_LOOKUP = [...HAIR_COLORS, ...HAIR_COLOR_ALIASES];
 
 type Locale = "it" | "en";
 
@@ -137,9 +160,10 @@ const COLOR_KEYS: ReadonlySet<MeasureKey> = new Set(["hair", "eyes"]);
 
 function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
   if (locale === "it") {
-    // Eyes come from a select key ("celesti") → its Italian label; everything
-    // else (measures, free-typed hair) is kept exactly as entered.
+    // Eyes and hair come from a select key ("celesti", "biondo-chiaro") → its
+    // Italian label; the numeric measures are kept exactly as entered.
     if (key === "eyes") return translateColor(raw, "it", EYE_COLORS);
+    if (key === "hair") return translateColor(raw, "it", HAIR_LOOKUP);
     return raw;
   }
   const cm = parseMetric(raw);
@@ -155,7 +179,7 @@ function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
     case "eyes":
       return translateColor(raw, "en", EYE_COLORS);
     case "hair":
-      return translateColor(raw, "en", HAIR_COLORS);
+      return translateColor(raw, "en", HAIR_LOOKUP);
   }
 }
 

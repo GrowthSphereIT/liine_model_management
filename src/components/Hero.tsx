@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import Wordmark from "./Wordmark";
+
 export default function Hero() {
   const [mounted, setMounted] = useState(false);
   const [motion, setMotion] = useState(false);
@@ -56,15 +58,18 @@ export default function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-[1600px] px-4 pb-10 sm:px-8 sm:pb-16">
         <div className="-mx-4 overflow-hidden sm:mx-0">
           <h1
-            className="u-display text-center text-paper sm:text-left text-[34vw] leading-[0.9] sm:text-[length:clamp(3.6rem,17vw,15rem)]"
+            className="text-paper"
             style={{
               transform: mounted ? "translateY(0)" : "translateY(110%)",
               transition: "transform 1.1s var(--ease-out-quint) .12s",
             }}
           >
-            LIINE
+            <Wordmark
+              ariaHidden
+              className="block w-full sm:w-[clamp(11rem,50vw,44rem)]"
+            />
             <span className="sr-only">
-              , agenzia di model management a Londra. The Art of Fitting.
+              LIINE, agenzia di model management a Londra. The Art of Fitting.
             </span>
           </h1>
         </div>

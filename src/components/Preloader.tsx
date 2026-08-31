@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import Wordmark from "@/components/Wordmark";
+
 /**
  * Initial-load screen. A dark ink field carrying the LIINE wordmark (the same
  * mark as the navbar) over a minimal, Apple-style progress bar — a light fill
@@ -63,9 +65,7 @@ export default function Preloader({ onDone }: { onDone?: () => void }) {
         transition: "transform 0.95s var(--ease-out-quint)",
       }}
     >
-      <span className="u-display text-[2.4rem] leading-none tracking-[-0.04em] text-paper sm:text-[3rem]">
-        LIINE
-      </span>
+      <Wordmark className="h-[1.7rem] w-auto text-paper sm:h-[2.1rem]" />
 
       <div className="mt-8 h-[3px] w-44 overflow-hidden rounded-full bg-paper/15 sm:w-56">
         <div
