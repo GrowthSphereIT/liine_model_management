@@ -69,7 +69,7 @@ export async function createCompositAction(
   }
 
   revalidatePath("/riservato/composit");
-  return { ok: true };
+  redirect("/riservato/composit");
 }
 
 export async function updateCompositAction(

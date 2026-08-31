@@ -152,36 +152,48 @@ export const TOUR_STEPS: TourStep[] = [
   // ── Composit ─────────────────────────────────────────────────────────
   {
     path: "/riservato/composit",
+    anchor: "composit-new",
+    title: "Nuovo composit",
+    body: "Da qui apri la pagina di creazione per generare una nuova comp card fronte/retro.",
+  },
+  {
+    path: "/riservato/composit",
+    anchor: "composit-list",
+    title: "I composit salvati",
+    body: "La tabella dei composit già creati: apri «Modifica» per riaprirne uno, cambiarne foto o misure e riscaricarlo. Da qui puoi anche eliminarli.",
+  },
+  {
+    path: "/riservato/composit/nuovo",
     anchor: "composit-name",
     title: "Nome sul composit",
     body: "Il nome che comparirà in grande sul fronte della comp card.",
   },
   {
-    path: "/riservato/composit",
+    path: "/riservato/composit/nuovo",
     anchor: "composit-photos",
     title: "Le due foto",
     body: "Una per il fronte (copertina) e una per il retro (scheda). Vengono ritagliate alla stessa dimensione, così le due facce combaciano perfettamente.",
   },
   {
-    path: "/riservato/composit",
+    path: "/riservato/composit/nuovo",
     anchor: "composit-misure",
     title: "Misure",
     body: "Le misure stampate sul retro (altezza, taglie, scarpe, capelli, occhi). Lascia vuoto ciò che non serve.",
   },
   {
-    path: "/riservato/composit",
+    path: "/riservato/composit/nuovo",
     anchor: "composit-theme",
     title: "Colore",
     body: "Scegli la versione chiara (fondo bianco) o scura (fondo nero, logo e testi in bianco).",
   },
   {
-    path: "/riservato/composit",
+    path: "/riservato/composit/nuovo",
     anchor: "composit-actions",
     title: "Scarica il PDF",
     body: "«Digitale» è un unico file orizzontale (fronte + retro affiancati). «Stampa» è a 2 pagine, pensato per la stampa fronte/retro.",
   },
   {
-    path: "/riservato/composit",
+    path: "/riservato/composit/nuovo",
     anchor: "composit-preview",
     title: "Anteprima",
     body: "Mostra in tempo reale come verranno le due facce, prima di scaricare.",

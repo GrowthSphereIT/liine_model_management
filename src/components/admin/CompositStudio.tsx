@@ -160,18 +160,9 @@ export default function CompositStudio({
         const res = await updateCompositAction({}, fd);
         if (res?.error) setSaveState(res);
       } else {
+        // On success createCompositAction redirects; it only returns on error.
         const res = await createCompositAction({}, fd);
-        setSaveState(res);
-        if (res.ok) {
-          setName("");
-          setMeasures(EMPTY);
-          if (frontUrl?.startsWith("blob:")) URL.revokeObjectURL(frontUrl);
-          if (backUrl?.startsWith("blob:")) URL.revokeObjectURL(backUrl);
-          setFrontFile(null);
-          setBackFile(null);
-          setFrontUrl(undefined);
-          setBackUrl(undefined);
-        }
+        if (res?.error) setSaveState(res);
       }
     });
   }
@@ -295,11 +286,6 @@ export default function CompositStudio({
           {saveState.error ? (
             <p role="alert" className="text-[0.8rem] text-accent">
               {saveState.error}
-            </p>
-          ) : null}
-          {saveState.ok ? (
-            <p role="status" className="text-[0.8rem] text-ink-soft">
-              Composit salvato. Lo trovi nella tabella qui sotto.
             </p>
           ) : null}
           {isEdit ? (
