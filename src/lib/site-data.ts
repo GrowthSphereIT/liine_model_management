@@ -48,12 +48,27 @@ export const FOOTER_NAV = [
 ] as const;
 
 // Social profiles — icon keys map to react-icons glyphs in SiteFooter.
-// SYNTHETIC: hrefs are placeholders, replace with the real handles.
 export const SOCIALS = [
-  { label: "Instagram", href: "https://www.instagram.com/", icon: "instagram" },
-  { label: "TikTok", href: "https://www.tiktok.com/", icon: "tiktok" },
-  { label: "Pinterest", href: "https://www.pinterest.com/", icon: "pinterest" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/", icon: "linkedin" },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/liinemodel.mgmt",
+    icon: "instagram",
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/share/1Dg3idNeYu/?mibextid=wwXIfr",
+    icon: "facebook",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/alexandra-massini-rosati-a24b20192",
+    icon: "linkedin",
+  },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/qr/7QLIFRRHTKV4F1",
+    icon: "whatsapp",
+  },
 ] as const;
 
 // Flat list for the mobile ledger menu — divisions expanded inline.

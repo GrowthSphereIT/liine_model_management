@@ -46,7 +46,7 @@ const bodoni = Bodoni_Moda({
 });
 
 // Canonical origin for metadata, structured data, sitemap and robots.
-const SITE_URL = "https://liine.growthsphere.it";
+const SITE_URL = "https://www.liinemodelmanagement.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -126,7 +126,11 @@ const ORG_JSONLD = {
     addressCountry: "GB",
   },
   areaServed: ["IT", "GB", "FR", "EU"],
-  sameAs: ["https://www.liinemodelmanagement.com"],
+  sameAs: [
+    "https://www.instagram.com/liinemodel.mgmt",
+    "https://www.facebook.com/share/1Dg3idNeYu/?mibextid=wwXIfr",
+    "https://www.linkedin.com/in/alexandra-massini-rosati-a24b20192",
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

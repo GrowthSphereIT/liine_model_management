@@ -1,15 +1,16 @@
 import Link from "next/link";
+import Script from "next/script";
 import type { ComponentType } from "react";
-import { SiInstagram, SiTiktok, SiPinterest } from "react-icons/si";
+import { SiInstagram, SiFacebook, SiWhatsapp } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa6";
 import { FOOTER_NAV, SOCIALS, LEGAL } from "@/lib/site-data";
 import Wordmark from "@/components/Wordmark";
 
 const SOCIAL_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   instagram: SiInstagram,
-  tiktok: SiTiktok,
-  pinterest: SiPinterest,
+  facebook: SiFacebook,
   linkedin: FaLinkedinIn,
+  whatsapp: SiWhatsapp,
 };
 
 export default function SiteFooter() {
@@ -121,6 +122,26 @@ export default function SiteFooter() {
             {LEGAL.entity} · {LEGAL.address}
           </span>
           <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 lg:justify-start">
+            <a
+              href="https://www.iubenda.com/privacy-policy/15847538"
+              className="iubenda-nostyle iubenda-noiframe iubenda-embed u-link transition-colors duration-300 hover:text-ink"
+              title="Privacy Policy"
+            >
+              Privacy Policy
+            </a>
+            <span aria-hidden className="hidden text-line-strong lg:inline">
+              ·
+            </span>
+            <a
+              href="https://www.iubenda.com/privacy-policy/15847538/cookie-policy"
+              className="iubenda-nostyle iubenda-noiframe iubenda-embed u-link transition-colors duration-300 hover:text-ink"
+              title="Cookie Policy"
+            >
+              Cookie Policy
+            </a>
+            <span aria-hidden className="hidden text-line-strong lg:inline">
+              ·
+            </span>
             <span>Partita IVA {LEGAL.vat}</span>
             <span aria-hidden className="hidden text-line-strong lg:inline">
               ·
@@ -147,6 +168,12 @@ export default function SiteFooter() {
           </span>
         </div>
       </div>
+
+      <Script
+        id="iubenda-embed-loader"
+        src="https://cdn.iubenda.com/iubenda.js"
+        strategy="lazyOnload"
+      />
     </footer>
   );
 }

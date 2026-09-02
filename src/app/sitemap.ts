@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPublicBoard } from "@/lib/admin-data";
 
-const SITE_URL = "https://liine.growthsphere.it";
+const SITE_URL = "https://www.liinemodelmanagement.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
