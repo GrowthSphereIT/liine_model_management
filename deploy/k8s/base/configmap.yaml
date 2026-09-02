@@ -9,8 +9,8 @@ metadata:
   namespace: liine
 data:
   NODE_ENV: "production"
-  APP_URL: "https://liine.growthsphere.it"
-  NEXT_PUBLIC_APP_URL: "https://liine.growthsphere.it"
+  APP_URL: "https://www.liinemodelmanagement.com"
+  NEXT_PUBLIC_APP_URL: "https://www.liinemodelmanagement.com"
   MONGODB_DB: "liine"
   # Object storage (MinIO). Credentials live in the `liine-app` Secret.
   S3_ENDPOINT: "http://minio.liine.svc.cluster.local:9000"

@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://liine.growthsphere.it
+      url: https://www.liinemodelmanagement.com
     steps:
       - uses: actions/checkout@v4
 

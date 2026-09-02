@@ -7,7 +7,7 @@ Manifest Kubernetes e script di deploy per il progetto `liine`.
 - App Next.js servita come container Node.js standalone
 - MongoDB in-cluster (StatefulSet + PVC, provisioner `local-path` di k3s)
 - Ingress NGINX con TLS via cert-manager (Let's Encrypt)
-- Dominio: `liine.growthsphere.it`
+- Dominio: `www.liinemodelmanagement.com` (apex `liinemodelmanagement.com` reindirizzato a www)
 
 ## GitHub Environment Secrets richiesti
 
