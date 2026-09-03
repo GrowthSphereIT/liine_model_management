@@ -197,6 +197,7 @@ export const BRANDS = [
   { name: "Brunello Cucinelli", src: "/logos/brunello-cucinelli.svg", ratio: "240 / 72" },
   { name: "Chiara Boni", src: "/logos/chiara-boni.svg", ratio: "240 / 72" },
   { name: "Fabiana Filippi", src: "/logos/fabiana-filippi.svg", ratio: "280 / 72" },
+  { name: "Aspesi", src: "/logos/aspesi.svg", ratio: "200 / 72" },
 ] as const;
 
 // Real, from liinemodelmanagement.com and the agency deck.
