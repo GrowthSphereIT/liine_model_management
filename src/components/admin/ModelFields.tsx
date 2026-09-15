@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 /**
  * Shared editable fields for a model — name, division, and the free-text info
  * shown on the public detail page. Used by both the create and edit forms.
@@ -68,7 +70,7 @@ export default function ModelFields({
   /** Existing values to prefill (edit mode). Omit for create. */
   model?: Partial<ModelFieldValues>;
 }) {
-  const division = model?.division ?? "lei";
+  const [division, setDivision] = useState(model?.division ?? "lei");
 
   return (
     <div className="flex flex-col gap-7">
@@ -96,6 +98,7 @@ export default function ModelFields({
                 name="division"
                 value={d.value}
                 defaultChecked={division === d.value}
+                onChange={() => setDivision(d.value)}
                 className="sr-only"
               />
               <span className="seg-opt">{d.label}</span>
@@ -147,7 +150,7 @@ export default function ModelFields({
           {MEASURE_ROWS.map((row) => (
             <div key={row.name} className="field">
               <label htmlFor={`model-${row.name}`} className="field-label">
-                {row.label}
+                {row.name === "bust" && division === "lui" ? "Torace" : row.label}
               </label>
               <input
                 id={`model-${row.name}`}

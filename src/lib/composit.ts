@@ -29,6 +29,7 @@ export type CompositMode = "digital" | "print";
 
 export interface CompositData {
   name: string;
+  division?: string;
   height?: string;
   bust?: string;
   waist?: string;
@@ -134,10 +135,11 @@ function inchesHalf(cm: number): string {
   return `${whole}${halves - whole ? "½" : ""}`;
 }
 
-// EU women's shoe → US half size, comma decimal ("7,5"), per the agency's
-// reference card (EU 39 → US 7,5). Adjust the offset here if their chart changes.
-function euShoeToUs(eu: number): string {
-  const us = Math.round((eu - 31.5) * 2) / 2;
+// EU shoe → US half size, comma decimal ("7,5").
+// Women: EU 39 → US 7,5 (offset 31.5). Men: EU 43 → US 10 (offset 33).
+function euShoeToUs(eu: number, isMale: boolean): string {
+  const offset = isMale ? 33 : 31.5;
+  const us = Math.round((eu - offset) * 2) / 2;
   return String(us).replace(".", ",");
 }
 
@@ -158,7 +160,7 @@ function translateColor(
 // unlike the numeric rows which stay "Label value".
 const COLOR_KEYS: ReadonlySet<MeasureKey> = new Set(["hair", "eyes"]);
 
-function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
+function localizedValue(key: MeasureKey, raw: string, locale: Locale, isMale: boolean): string {
   if (locale === "it") {
     // Eyes and hair come from a select key ("celesti", "biondo-chiaro") → its
     // Italian label; the numeric measures are kept exactly as entered.
@@ -175,7 +177,7 @@ function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
     case "hips":
       return cm ? inchesHalf(cm) : raw;
     case "shoes":
-      return cm ? euShoeToUs(cm) : raw;
+      return cm ? euShoeToUs(cm, isMale) : raw;
     case "eyes":
       return translateColor(raw, "en", EYE_COLORS);
     case "hair":
@@ -185,11 +187,15 @@ function localizedValue(key: MeasureKey, raw: string, locale: Locale): string {
 
 function measureLine(data: Partial<CompositData>, locale: Locale): string {
   const parts: string[] = [];
+  const isMale = data.division === "lui";
   for (const m of MEASURES) {
     const raw = data[m.key]?.trim();
     if (!raw) continue;
-    const label = locale === "en" ? m.en : m.it;
-    const value = localizedValue(m.key, raw, locale);
+    let label = locale === "en" ? m.en : m.it;
+    if (m.key === "bust" && isMale) {
+      label = locale === "en" ? "Chest" : "Torace";
+    }
+    const value = localizedValue(m.key, raw, locale, isMale);
     parts.push(
       locale === "en" && COLOR_KEYS.has(m.key)
         ? `${value} ${label}` // "Blonde Hair", "Blue Eyes"

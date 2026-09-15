@@ -32,6 +32,7 @@ export const COMPOSIT_MEASURE_KEYS: (keyof CompositMeasures)[] = [
 interface CompositDoc extends Document, Partial<CompositMeasures> {
   _id?: ObjectId;
   name: string;
+  division?: string;
   theme: CompositTheme;
   /** Object-storage keys for the two photos. */
   frontKey: string;
@@ -43,6 +44,7 @@ interface CompositDoc extends Document, Partial<CompositMeasures> {
 export interface AdminComposit extends CompositMeasures {
   id: string;
   name: string;
+  division: string;
   theme: CompositTheme;
   frontKey: string;
   backKey: string;
@@ -78,6 +80,7 @@ function serialize(doc: CompositDoc): AdminComposit {
   return {
     id: String(doc._id),
     name: doc.name,
+    division: doc.division ?? "lei",
     theme: doc.theme === "dark" ? "dark" : "light",
     frontKey: doc.frontKey,
     backKey: doc.backKey,
@@ -106,6 +109,7 @@ export async function getComposit(id: string): Promise<AdminComposit | null> {
 
 export interface CompositInput extends Partial<CompositMeasures> {
   name: string;
+  division?: string;
   theme: CompositTheme;
   frontKey: string;
   backKey: string;
@@ -115,6 +119,7 @@ export async function createComposit(input: CompositInput): Promise<void> {
   const col = await composits();
   await col.insertOne({
     name: input.name.trim(),
+    division: input.division ?? "lei",
     theme: input.theme,
     frontKey: input.frontKey,
     backKey: input.backKey,
@@ -131,6 +136,7 @@ export async function updateComposit(
   id: string,
   input: Partial<CompositMeasures> & {
     name: string;
+    division?: string;
     theme: CompositTheme;
     frontKey?: string;
     backKey?: string;
@@ -143,6 +149,7 @@ export async function updateComposit(
 
   const set: Partial<CompositDoc> = {
     name: input.name.trim(),
+    division: input.division ?? "lei",
     theme: input.theme,
     updatedAt: new Date(),
     ...measures(input),

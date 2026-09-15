@@ -16,6 +16,14 @@ import {
   type CompositFormState,
 } from "@/app/riservato/composit-actions";
 
+const DIVISIONS = [
+  { value: "lei", label: "Lei" },
+  { value: "lui", label: "Lui" },
+  { value: "kids", label: "Kids" },
+] as const;
+
+type Division = (typeof DIVISIONS)[number]["value"];
+
 // Text fields entered in metric (cm) / EU sizes; the English line on the card
 // is converted automatically. Hair and eyes are separate selects (see below).
 const MEASURE_FIELDS: { key: MeasureKey; label: string; ph: string }[] = [
@@ -96,6 +104,9 @@ export default function CompositStudio({
 }) {
   const isEdit = Boolean(initial);
   const [name, setName] = useState(initial?.name ?? "");
+  const [division, setDivision] = useState<Division>(
+    (initial?.division as Division) ?? "lei",
+  );
   const [measures, setMeasures] = useState<Measures>(measuresFrom(initial));
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
@@ -129,7 +140,7 @@ export default function CompositStudio({
     setBusy(mode);
     try {
       await downloadComposit(
-        { name, ...measures, frontImage: frontUrl, backImage: backUrl },
+        { name, division, ...measures, frontImage: frontUrl, backImage: backUrl },
         mode,
         theme,
       );
@@ -148,6 +159,7 @@ export default function CompositStudio({
     }
     const fd = new FormData();
     fd.set("name", name);
+    fd.set("division", division);
     fd.set("theme", theme);
     for (const [k, v] of Object.entries(measures)) fd.set(k, v);
     if (frontFile) fd.set("front", frontFile);
@@ -204,7 +216,7 @@ export default function CompositStudio({
             {MEASURE_FIELDS.map((f) => (
               <div key={f.key} className="field">
                 <label htmlFor={`composit-${f.key}`} className="field-label">
-                  {f.label}
+                  {f.key === "bust" && division === "lui" ? "Torace" : f.label}
                 </label>
                 <input
                   id={`composit-${f.key}`}
@@ -265,6 +277,22 @@ export default function CompositStudio({
             colori tradotti).
           </p>
         </fieldset>
+
+        <div className="flex items-center gap-3">
+          <span className="field-label">Divisione</span>
+          <div className="seg">
+            {DIVISIONS.map((d) => (
+              <button
+                key={d.value}
+                type="button"
+                onClick={() => setDivision(d.value)}
+                className={`seg-opt ${division === d.value ? "border-accent bg-accent text-paper" : ""}`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="flex items-center gap-3" data-tour="composit-theme">
           <span className="field-label">Colore</span>

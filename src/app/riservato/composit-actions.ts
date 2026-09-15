@@ -27,6 +27,11 @@ function readTheme(fd: FormData): CompositTheme {
   return String(fd.get("theme")) === "dark" ? "dark" : "light";
 }
 
+function readDivision(fd: FormData): string {
+  const v = String(fd.get("division") ?? "lei");
+  return ["lei", "lui", "kids"].includes(v) ? v : "lei";
+}
+
 /** Validates and stores one photo, returning its object key (or null if none). */
 async function uploadPhoto(file: File | null): Promise<string | null> {
   if (!file || file.size === 0) return null;
@@ -57,6 +62,7 @@ export async function createCompositAction(
     }
     await createComposit({
       name,
+      division: readDivision(formData),
       theme: readTheme(formData),
       frontKey,
       backKey,
@@ -90,6 +96,7 @@ export async function updateCompositAction(
     const backKey = await uploadPhoto(formData.get("back") as File | null);
     await updateComposit(id, {
       name,
+      division: readDivision(formData),
       theme: readTheme(formData),
       ...(frontKey ? { frontKey } : {}),
       ...(backKey ? { backKey } : {}),
